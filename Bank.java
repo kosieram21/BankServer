@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Bank implements IBank {
-    private Hashtable<int, Account> _accounts = new Hashtable<int, Account>();
+    private Hashtable<Integer, Account> _accounts = new Hashtable<Integer, Account>();
 
     class Account {
         private int _uuid;
