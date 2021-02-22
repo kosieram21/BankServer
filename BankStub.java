@@ -1,24 +1,8 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class BankStub {
-    private final Socket _socket;
-    private final ObjectOutputStream _obj_out;
-    private final ObjectInputStream _obj_in;
-
-    BankStub(Socket socket) throws IOException {
-        _socket = socket;
-        _obj_out = new ObjectOutputStream(_socket.getOutputStream());
-        _obj_in  = new ObjectInputStream(_socket.getInputStream());
-    }
-
-    public void close() throws IOException {
-        _obj_in.close();
-        _obj_out.close();
-        _socket.close();
-    }
+public final class BankStub extends BankCommunication {
+    BankStub(Socket socket) throws IOException { super(socket); }
 
     public int createAccount() throws IOException, ClassNotFoundException {
         Packet.CreateAccountRequest request = new Packet.CreateAccountRequest();

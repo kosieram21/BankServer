@@ -1,27 +1,10 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class BankService {
-    private final Socket _socket;
-    private final ObjectOutputStream _obj_out;
-    private final ObjectInputStream _obj_in;
+public final class BankService extends BankCommunication {
+    private final Bank _bank = Bank.getInstance();
 
-    private final Bank _bank;
-
-    BankService(Socket socket) throws IOException {
-        _socket = socket;
-        _obj_out = new ObjectOutputStream(_socket.getOutputStream());
-        _obj_in  = new ObjectInputStream(_socket.getInputStream());
-        _bank = Bank.getInstance();
-    }
-
-    public void close() throws IOException {
-        _obj_in.close();
-        _obj_out.close();
-        _socket.close();
-    }
+    BankService(Socket socket) throws IOException { super(socket); }
 
     public boolean handleRequest() throws IOException, ClassNotFoundException {
         boolean exit_session = false;
