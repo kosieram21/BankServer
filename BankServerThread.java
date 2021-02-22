@@ -40,7 +40,7 @@ public class BankServerThread extends Thread {
 
     private void handleRequest(Packet.TransferRequest request) throws IOException {
         Packet.TransferResponse response = new Packet.TransferResponse();
-
+        response.setStatus(_bank.transfer(request.getSourceUuid(), request.getTargetUuid(), request.getAmount()));
         _obj_out.writeObject(response);
     }
 
