@@ -1,8 +1,6 @@
-import javax.swing.text.html.HTMLDocument;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class BankServerThread extends Thread {
@@ -49,7 +47,7 @@ public class BankServerThread extends Thread {
     public void run() {
         try {
             // create input/output stream abstractions
-            Packet.Base request = (Packet.Base) _obj_in.readObject();
+            Packet.Request request = (Packet.Request) _obj_in.readObject();
 
             switch (request.getRequestId()) {
                 case createAccount:

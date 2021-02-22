@@ -17,9 +17,6 @@ public class Packet {
 
         Base(int buffSize) { _buffer = ByteBuffer.allocate(buffSize); }
 
-        public RequestId getRequestId() { return getRequestIdFromBuffer(0); }
-        public void setRequestId(RequestId val) { setRequestIdInBuffer(0, val); }
-
         protected RequestId getRequestIdFromBuffer(int pos) { return RequestId.convert(_buffer.get(pos)); }
         protected void setRequestIdInBuffer(int pos, RequestId val) { _buffer.put(pos, (byte)val.ordinal()); }
 
@@ -32,14 +29,21 @@ public class Packet {
 
     // region Requests
 
-    static final class CreateAccountRequest extends Base {
+    static abstract class Request extends Base {
+        Request(int buffSize) { super(buffSize); }
+
+        public RequestId getRequestId() { return getRequestIdFromBuffer(0); }
+        public void setRequestId(RequestId val) { setRequestIdInBuffer(0, val); }
+    }
+
+    static final class CreateAccountRequest extends Request {
         CreateAccountRequest() {
             super(1);
             setRequestId(RequestId.createAccount);
         }
     }
 
-    static final class DepositRequest extends Base {
+    static final class DepositRequest extends Request {
         DepositRequest() {
             super(9);
             setRequestId(RequestId.deposit);
@@ -52,7 +56,7 @@ public class Packet {
         public void setAmount(int val) { setIntInBuffer(5, val); }
     }
 
-    static final class GetBalanceRequest extends Base {
+    static final class GetBalanceRequest extends Request {
         GetBalanceRequest() {
             super(5);
             setRequestId(RequestId.getBalance);
@@ -62,7 +66,7 @@ public class Packet {
         public void setUuid(int val) { setIntInBuffer(1, val); }
     }
 
-    static final class TransferRequest extends Base {
+    static final class TransferRequest extends Request {
         TransferRequest() {
             super(13);
             setRequestId(RequestId.transfer);
@@ -82,41 +86,33 @@ public class Packet {
 
     // region Responses
 
-    static final class CreateAccountResponse extends Base {
-        CreateAccountResponse() {
-            super(5);
-            setRequestId(RequestId.createAccount);
-        }
-
-        public int getUuid() { return getIntFromBuffer(1); }
-        public void setUuid(int val) { setIntInBuffer(1, val); }
+    static abstract class Response extends Base {
+        Response(int buffSize) { super(buffSize); }
     }
 
-    static final class DepositResponse extends Base {
-        DepositResponse() {
-            super(2);
-            setRequestId(RequestId.deposit);
-        }
+    static final class CreateAccountResponse extends Response {
+        CreateAccountResponse() { super(4); }
 
-        public Status getStatus() { return getStatusFromBuffer(1); }
-        public void setStatus(Status val) { setStatusInBuffer(1, val); }
+        public int getUuid() { return getIntFromBuffer(0); }
+        public void setUuid(int val) { setIntInBuffer(0, val); }
     }
 
-    static final class GetBalanceResponse extends Base {
-        GetBalanceResponse() {
-            super(5);
-            setRequestId(RequestId.getBalance);
-        }
+    static final class DepositResponse extends Response {
+        DepositResponse() { super(1); }
 
-        public int getAmount() { return getIntFromBuffer(1); }
-        public void setAmount(int val) { setIntInBuffer(1, val); }
+        public Status getStatus() { return getStatusFromBuffer(0); }
+        public void setStatus(Status val) { setStatusInBuffer(0, val); }
     }
 
-    static final class TransferResponse extends Base {
-        TransferResponse() {
-            super(2);
-            setRequestId(RequestId.transfer);
-        }
+    static final class GetBalanceResponse extends Response {
+        GetBalanceResponse() { super(4); }
+
+        public int getAmount() { return getIntFromBuffer(0); }
+        public void setAmount(int val) { setIntInBuffer(0, val); }
+    }
+
+    static final class TransferResponse extends Response {
+        TransferResponse() { super(1); }
 
         public Status getStatus() { return getStatusFromBuffer(1); }
         public void setStatus(Status val) { setStatusInBuffer(1, val); }
