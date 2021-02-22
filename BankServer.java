@@ -5,8 +5,9 @@ public class BankServer {
     public static void main(String args[]) throws IOException {
         // create server socket that 'listens' for connections request from clients
         if (args.length != 1) throw new RuntimeException("Syntax: BankServer port-number");
-        System.out.println("Starting on port " + args[0]);
-        ServerSocket server = new ServerSocket(Integer.parseInt(args[0]));
+        int port = Integer.parseInt(args[0]);
+        System.out.println("Starting on port " + port);
+        ServerSocket server = new ServerSocket(port);
 
         // as long as server is alive wait for client request and process them on worker background threads
         while (true) {
@@ -17,7 +18,7 @@ public class BankServer {
 
             // create background worker thread to handle client traffic
             System.out.println("Starting worker thread...");
-            BankServer thread = new BankServer(client);
+            BankServerThread thread = new BankServerThread(client);
             thread.start();
         }
     }
