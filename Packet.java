@@ -30,7 +30,16 @@ public class Packet {
         protected void setStatusInBuffer(int pos, Status val) { _buffer.put(pos, (byte)val.ordinal()); }
     }
 
-    static class DepositRequest extends Base {
+    // region Requests
+
+    static final class CreateAccountRequest extends Base {
+        CreateAccountRequest() {
+            super(1);
+            setRequestId(RequestId.createAccount);
+        }
+    }
+
+    static final class DepositRequest extends Base {
         DepositRequest() {
             super(9);
             setRequestId(RequestId.deposit);
@@ -42,4 +51,76 @@ public class Packet {
         public int getAmount() { return getIntFromBuffer(5); }
         public void setAmount(int val) { setIntInBuffer(5, val); }
     }
+
+    static final class GetBalanceRequest extends Base {
+        GetBalanceRequest() {
+            super(5);
+            setRequestId(RequestId.getBalance);
+        }
+
+        public int getUuid() { return getIntFromBuffer(1); }
+        public void setUuid(int val) { setIntInBuffer(1, val); }
+    }
+
+    static final class TransferRequest extends Base {
+        TransferRequest() {
+            super(13);
+            setRequestId(RequestId.transfer);
+        }
+
+        public int getSourceUuid() { return getIntFromBuffer(1); }
+        public void setSourceUuid(int val) { setIntInBuffer(1, val); }
+
+        public int getTargetUuid() { return getIntFromBuffer(5); }
+        public void setTargetUuid(int val) { setIntInBuffer(5, val); }
+
+        public int getAmount() { return getIntFromBuffer(9); }
+        public void setAmount(int val) { setIntInBuffer(9, val); }
+    }
+
+    // endregion
+
+    // region Responses
+
+    static final class CreateAccountResponse extends Base {
+        CreateAccountResponse() {
+            super(5);
+            setRequestId(RequestId.createAccount);
+        }
+
+        public int getUuid() { return getIntFromBuffer(1); }
+        public void setUuid(int val) { setIntInBuffer(1, val); }
+    }
+
+    static final class DepositResponse extends Base {
+        DepositResponse() {
+            super(2);
+            setRequestId(RequestId.deposit);
+        }
+
+        public Status getStatus() { return getStatusFromBuffer(1); }
+        public void setStatus(Status val) { setStatusInBuffer(1, val); }
+    }
+
+    static final class GetBalanceResponse extends Base {
+        GetBalanceResponse() {
+            super(5);
+            setRequestId(RequestId.getBalance);
+        }
+
+        public int getAmount() { return getIntFromBuffer(1); }
+        public void setAmount(int val) { setIntInBuffer(1, val); }
+    }
+
+    static final class TransferResponse extends Base {
+        TransferResponse() {
+            super(2);
+            setRequestId(RequestId.transfer);
+        }
+
+        public Status getStatus() { return getStatusFromBuffer(1); }
+        public void setStatus(Status val) { setStatusInBuffer(1, val); }
+    }
+
+    // endregion
 }
