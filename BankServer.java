@@ -1,48 +1,7 @@
 import java.net.*;
 import java.io.*;
 
-public class BankServer extends Thread {
-    protected Socket _socket;
-    protected IBank _bank;
-
-    BankServer(Socket socket) {
-        System.out.println("New client.");
-        _socket = socket;
-    }
-
-    public void run() {
-        try {
-            // create input/output stream abstractions
-            InputStream istream = _socket.getInputStream();
-            OutputStream ostream = _socket.getOutputStream();
-
-            // receive request and send it back as the response
-            byte buffer[] = new byte[512];
-            int count;
-            while ((count = istream.read(buffer)) >= 0) {
-                String msg = new String(buffer);
-                String outMsg = msg.toUpperCase();
-                byte[] outBuf = outMsg.getBytes();
-                ostream.write(outBuf, 0, outBuf.length);
-                ostream.flush();
-                System.out.write(buffer, 0, count);
-                System.out.flush();
-            }
-
-            // close client socket connect. can't we just do this in the finally block?
-            System.out.println("Client exit.");
-            _socket.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                _socket.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
-
+public class BankServer {
     public static void main(String args[]) throws IOException {
         // create server socket that 'listens' for connections request from clients
         if (args.length != 1) throw new RuntimeException("Syntax: BankServer port-number");
