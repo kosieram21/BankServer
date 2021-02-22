@@ -11,7 +11,7 @@ public class BankServerThread extends Thread {
 
     public void run() {
         try {
-            _bank_service.handleRequest();
+            while(_bank_service.handleRequest()) { }
         }
         catch (IOException | ClassNotFoundException ex) {
             ex.printStackTrace();

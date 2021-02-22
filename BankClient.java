@@ -1,8 +1,8 @@
 import java.net.*;
 import java.io.*;
 
-public class EchoClient {
-    public static void main(String args[]) throws IOException {
+public class BankClient {
+    public static void main(String args[]) throws IOException, ClassNotFoundException {
         // parse command line arguments
         if (args.length != 2) throw new RuntimeException("hostname and port number as arguments");
         String host = args[0];
@@ -13,26 +13,12 @@ public class EchoClient {
         Socket socket = new Socket(host, port);
         System.out.println("Connected.");
 
-        // create input/output stream abstractions
-        OutputStream rawOut = socket.getOutputStream();
-        InputStream rawIn = socket.getInputStream();
-        BufferedReader buffreader = new BufferedReader(new InputStreamReader(rawIn));
-        PrintWriter serverWriter = new PrintWriter(new OutputStreamWriter(rawOut));
-        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
-
-        // send request
-        String line;
-        while ((line = keyboard.readLine()) != null) {
-            serverWriter.println(line);
-            serverWriter.flush();
-        }
-
-        socket.shutdownOutput();
-
-        // receive response
-        while (buffreader.ready()) {
-            if ((line = buffreader.readLine()) != null)
-                System.out.println(line);
-        }
+        BankStub bank_stub = new BankStub(socket);
+        int uuid = bank_stub.createAccount();
+        bank_stub.deposit(uuid, 100);
+        System.out.println(bank_stub.getBalance(uuid));
+        bank_stub.deposit(uuid, 100);
+        System.out.println(bank_stub.getBalance(uuid));
+        bank_stub.exit();
     }
 }

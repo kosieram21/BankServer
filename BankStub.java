@@ -14,6 +14,12 @@ public class BankStub {
         _obj_in  = new ObjectInputStream(_socket.getInputStream());
     }
 
+    public void close() throws IOException {
+        _obj_in.close();
+        _obj_out.close();
+        _socket.close();
+    }
+
     public int createAccount() throws IOException, ClassNotFoundException {
         Packet.CreateAccountRequest request = new Packet.CreateAccountRequest();
         _obj_out.writeObject(request);
@@ -50,5 +56,11 @@ public class BankStub {
 
         Packet.TransferResponse response = (Packet.TransferResponse)_obj_in.readObject();
         return response.getStatus();
+    }
+
+    public void exit() throws IOException {
+        Packet.ExitRequest request = new Packet.ExitRequest();
+        _obj_out.writeObject(request);
+        close();
     }
 }

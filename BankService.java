@@ -22,24 +22,19 @@ public class BankService {
         _socket.close();
     }
 
-    public void handleRequest() throws IOException, ClassNotFoundException {
-        // create input/output stream abstractions
-        Packet.Request request = (Packet.Request) _obj_in.readObject();
+    public boolean handleRequest() throws IOException, ClassNotFoundException {
+        boolean exit_session = false;
 
+        Packet.Request request = (Packet.Request) _obj_in.readObject();
         switch (request.getRequestId()) {
-            case createAccount:
-                handleRequest((Packet.CreateAccountRequest)request);
-                break;
-            case deposit:
-                handleRequest((Packet.DepositRequest)request);
-                break;
-            case getBalance:
-                handleRequest((Packet.GetBalanceRequest)request);
-                break;
-            case transfer:
-                handleRequest((Packet.TransferRequest)request);
-                break;
+            case createAccount -> handleRequest((Packet.CreateAccountRequest) request);
+            case deposit -> handleRequest((Packet.DepositRequest) request);
+            case getBalance -> handleRequest((Packet.GetBalanceRequest) request);
+            case transfer -> handleRequest((Packet.TransferRequest) request);
+            case exit -> exit_session = true;
         }
+
+        return !exit_session;
     }
 
     private void handleRequest(Packet.CreateAccountRequest request) throws IOException {

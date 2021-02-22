@@ -5,7 +5,8 @@ public class Packet {
         createAccount,
         deposit,
         getBalance,
-        transfer;
+        transfer,
+        exit;
 
         public static RequestId convert(byte val) {
             return RequestId.values()[val];
@@ -80,6 +81,13 @@ public class Packet {
 
         public int getAmount() { return getIntFromBuffer(9); }
         public void setAmount(int val) { setIntInBuffer(9, val); }
+    }
+
+    static final class ExitRequest extends Request {
+        ExitRequest() {
+            super(1);
+            setRequestId(RequestId.createAccount);
+        }
     }
 
     // endregion
