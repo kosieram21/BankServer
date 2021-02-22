@@ -4,9 +4,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class BankStub {
-    protected Socket _socket;
-    protected ObjectOutputStream _obj_out;
-    protected ObjectInputStream _obj_in;
+    private final Socket _socket;
+    private final ObjectOutputStream _obj_out;
+    private final ObjectInputStream _obj_in;
 
     BankStub(Socket socket) throws IOException {
         _socket = socket;
