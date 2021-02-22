@@ -1,16 +1,15 @@
 import java.util.*;
 
-public class Bank implements IBank {
-    private Hashtable<Integer, Account> _accounts = new Hashtable<Integer, Account>();
+public class Bank {
+    private final Hashtable<Integer, Account> _accounts = new Hashtable<Integer, Account>();
 
-    class Account {
+    static class Account {
         private int _uuid;
         private int _balance;
 
         public synchronized int getUuid() {
             return _uuid;
         }
-
         public synchronized void setUuid(int uuid) {
             _uuid = uuid;
         }
@@ -18,10 +17,18 @@ public class Bank implements IBank {
         public synchronized int getBalance() {
             return _balance;
         }
-
         public synchronized void setBalance(int balance) {
             _balance = balance;
         }
+    }
+
+    private Bank() {}
+
+    private static Bank _instance;
+    public static Bank getInstance() {
+        if(_instance == null)
+            _instance = new Bank();
+        return _instance;
     }
 
     public int createAccount() {

@@ -8,12 +8,13 @@ public class BankService {
     private final ObjectOutputStream _obj_out;
     private final ObjectInputStream _obj_in;
 
-    private IBank _bank;
+    private final Bank _bank;
 
     BankService(Socket socket) throws IOException {
         _socket = socket;
         _obj_out = new ObjectOutputStream(_socket.getOutputStream());
         _obj_in  = new ObjectInputStream(_socket.getInputStream());
+        _bank = Bank.getInstance();
     }
 
     public void close() throws IOException {
