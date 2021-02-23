@@ -1,7 +1,35 @@
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.ServerSocket;
 
 public class BankServer {
+    static class WorkerThread extends Thread {
+        private final BankService _bank_service;
+
+        WorkerThread(Socket socket) throws IOException {
+            System.out.println("New client.");
+            _bank_service = new BankService(socket);
+        }
+
+        public void run() {
+            try {
+                while(_bank_service.handleRequest()) { }
+            }
+            catch (IOException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+            finally {
+                try {
+                    _bank_service.close();
+                    System.out.println("Client exit.");
+                }
+                catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static void main(String args[]) throws IOException {
         // create server socket that 'listens' for connections request from clients
         if (args.length != 1) throw new RuntimeException("Syntax: BankServer port-number");
@@ -19,7 +47,7 @@ public class BankServer {
 
             // create background worker thread to handle client traffic
             System.out.println("Starting worker thread...");
-            BankServerThread thread = new BankServerThread(client);
+            WorkerThread thread = new WorkerThread(client);
             thread.start();
         }
     }

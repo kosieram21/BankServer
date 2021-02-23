@@ -22,7 +22,6 @@ public final class BankService extends BankCommunication {
     }
 
     private void handleRequest(Packet.CreateAccountRequest request) throws IOException {
-        System.out.println("yoooooooo!");
         Packet.CreateAccountResponse response = new Packet.CreateAccountResponse();
         response.setUuid(_bank.createAccount());
         _obj_out.writeObject(response);

@@ -1,9 +1,7 @@
 import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class Packet {
     enum RequestId {
@@ -52,14 +50,12 @@ public class Packet {
             byte[] bytes = new byte[length];
             int bytesRead = in.read(bytes, 0, length);
 
-            if (bytesRead != length) throw new IOException("Ehh yo Mr.White you forgot some bytes.");
+            if (bytesRead != length) throw new IOException();
 
             _buffer = ByteBuffer.allocate(length + 1);
             _buffer.put(0, length);
-            //_buffer.put(bytes, 0, length);
             for(int i = 0; i < length; i++)
                 _buffer.put(i + 1, bytes[i]);
-            System.out.println(Arrays.toString(_buffer.array()));
         }
     }
 

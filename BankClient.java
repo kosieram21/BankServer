@@ -1,5 +1,5 @@
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.net.Socket;
 
 public class BankClient {
     public static void main(String args[]) throws IOException, ClassNotFoundException {
@@ -16,17 +16,27 @@ public class BankClient {
         BankStub bank_stub = new BankStub(socket);
 
         System.out.println("creating account");
-        int uuid = bank_stub.createAccount();
-        System.out.println(uuid);
+        int uuid1 = bank_stub.createAccount();
+        System.out.println(uuid1);
+
+        System.out.println("creating account");
+        int uuid2 = bank_stub.createAccount();
+        System.out.println(uuid2);
 
         System.out.println("depositing");
-        bank_stub.deposit(uuid, 100);
-        System.out.println(bank_stub.getBalance(uuid));
+        bank_stub.deposit(uuid1, 100);
+        System.out.println(bank_stub.getBalance(uuid1));
 
         System.out.println("depositing");
-        bank_stub.deposit(uuid, 100);
-        System.out.println(bank_stub.getBalance(uuid));
+        bank_stub.deposit(uuid2, 100);
+        System.out.println(bank_stub.getBalance(uuid2));
 
+        System.out.println("transferring");
+        bank_stub.transfer(uuid1, uuid2, 100);
+        System.out.println(bank_stub.getBalance(uuid1));
+        System.out.println(bank_stub.getBalance(uuid2));
+
+        System.out.println("exiting");
         bank_stub.exit();
     }
 }
