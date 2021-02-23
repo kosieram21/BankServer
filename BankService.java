@@ -12,10 +12,10 @@ public final class BankService extends BankCommunication {
         Packet.Request request = (Packet.Request) _obj_in.readObject();
         switch (request.getRequestId()) {
             case createAccount -> handleRequest((Packet.CreateAccountRequest) request);
-            case deposit -> handleRequest((Packet.DepositRequest) request);
-            case getBalance -> handleRequest((Packet.GetBalanceRequest) request);
-            case transfer -> handleRequest((Packet.TransferRequest) request);
-            case exit -> exit_session = true;
+            case deposit       -> handleRequest((Packet.DepositRequest) request);
+            case getBalance    -> handleRequest((Packet.GetBalanceRequest) request);
+            case transfer      -> handleRequest((Packet.TransferRequest) request);
+            case exit          -> exit_session = true;
         }
 
         return !exit_session;
