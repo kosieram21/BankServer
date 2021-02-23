@@ -3,6 +3,7 @@ import java.io.ObjectStreamException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class Packet {
     enum RequestId {
@@ -55,8 +56,10 @@ public class Packet {
 
             _buffer = ByteBuffer.allocate(length + 1);
             _buffer.put(0, length);
-            _buffer.put(bytes, 0, length);
-            System.out.println(_buffer.array());
+            //_buffer.put(bytes, 0, length);
+            for(int i = 0; i < length; i++)
+                _buffer.put(i + 1, bytes[i]);
+            System.out.println(Arrays.toString(_buffer.array()));
         }
     }
 
@@ -118,7 +121,7 @@ public class Packet {
     static final class ExitRequest extends Request {
         ExitRequest() {
             super(2);
-            setRequestId(RequestId.createAccount);
+            setRequestId(RequestId.exit);
         }
     }
 
