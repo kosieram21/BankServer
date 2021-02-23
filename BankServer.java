@@ -30,7 +30,7 @@ public class BankServer {
         }
     }
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String[] args) throws IOException {
         // create server socket that 'listens' for connections request from clients
         if (args.length != 1) throw new RuntimeException("Syntax: BankServer port-number");
         int port = Integer.parseInt(args[0]);
