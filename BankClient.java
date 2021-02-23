@@ -69,7 +69,7 @@ public class BankClient {
             sum = sum + bank_stub.getBalance(uuids[i]);
         System.out.println(sum);
 
-        WorkerThread[] threads = new WorkerThread[4];
+        WorkerThread[] threads = new WorkerThread[thread_count];
         for(int i = 0; i < thread_count; i++) {
             threads[i] = new WorkerThread(new Socket(host, port), uuids, iteration_count);
             threads[i].run();
