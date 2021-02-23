@@ -17,7 +17,7 @@ public class Packet {
     }
 
     abstract static class Base implements Serializable {
-        private ByteBuffer _buffer;
+        protected ByteBuffer _buffer;
 
         Base(int length) {
             _buffer = ByteBuffer.allocate(length);
@@ -26,17 +26,11 @@ public class Packet {
 
         public byte getLength() { return getByteFromBuffer(0); }
 
-        protected RequestId getRequestIdFromBuffer(int pos) { return RequestId.convert(_buffer.get(pos)); }
-        protected void setRequestIdInBuffer(int pos, RequestId val) { _buffer.put(pos, (byte)val.ordinal()); }
-
         protected byte getByteFromBuffer(int pos) { return _buffer.get(pos); }
         protected void setByteInBuffer(int pos, byte val) { _buffer.put(pos, val); }
 
         protected int getIntFromBuffer(int pos) { return _buffer.getInt(pos); }
         protected void setIntInBuffer(int pos, int val) { _buffer.putInt(pos, val); }
-
-        protected Status getStatusFromBuffer(int pos) { return Status.convert(_buffer.get(pos)); }
-        protected void setStatusInBuffer(int pos, Status val) { _buffer.put(pos, (byte)val.ordinal()); }
 
         @Serial
         private void writeObject(java.io.ObjectOutputStream out) throws IOException {
@@ -66,6 +60,9 @@ public class Packet {
 
         public RequestId getRequestId() { return getRequestIdFromBuffer(1); }
         public void setRequestId(RequestId val) { setRequestIdInBuffer(1, val); }
+
+        protected RequestId getRequestIdFromBuffer(int pos) { return RequestId.convert(_buffer.get(pos)); }
+        protected void setRequestIdInBuffer(int pos, RequestId val) { _buffer.put(pos, (byte)val.ordinal()); }
     }
 
     static final class CreateAccountRequest extends Request {
@@ -127,6 +124,9 @@ public class Packet {
 
     static abstract class Response extends Base {
         Response(int buffSize) { super(buffSize); }
+
+        protected Status getStatusFromBuffer(int pos) { return Status.convert(_buffer.get(pos)); }
+        protected void setStatusInBuffer(int pos, Status val) { _buffer.put(pos, (byte)val.ordinal()); }
     }
 
     static final class CreateAccountResponse extends Response {
