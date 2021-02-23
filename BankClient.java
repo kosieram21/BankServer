@@ -14,11 +14,19 @@ public class BankClient {
         System.out.println("Connected.");
 
         BankStub bank_stub = new BankStub(socket);
+
+        System.out.println("creating account");
         int uuid = bank_stub.createAccount();
+        System.out.println(uuid);
+
+        System.out.println("depositing");
         bank_stub.deposit(uuid, 100);
         System.out.println(bank_stub.getBalance(uuid));
+
+        System.out.println("depositing");
         bank_stub.deposit(uuid, 100);
         System.out.println(bank_stub.getBalance(uuid));
+
         bank_stub.exit();
     }
 }

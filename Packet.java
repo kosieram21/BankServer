@@ -20,9 +20,9 @@ public class Packet {
     abstract static class Base implements Serializable {
         private ByteBuffer _buffer;
 
-        Base(byte length) {
+        Base(int length) {
             _buffer = ByteBuffer.allocate(length);
-            setByteInBuffer(0, length);
+            setByteInBuffer(0, (byte)(length - 1));
         }
 
         public byte getLength() { return getByteFromBuffer(0); }
@@ -55,14 +55,14 @@ public class Packet {
 
             _buffer = ByteBuffer.allocate(length + 1);
             _buffer.put(0, length);
-            _buffer.put(bytes, 1, length);
+            _buffer.put(bytes, 0, length);
         }
     }
 
     // region Requests
 
     static abstract class Request extends Base {
-        Request(int buffSize) { super((byte)buffSize); }
+        Request(int buffSize) { super(buffSize); }
 
         public RequestId getRequestId() { return getRequestIdFromBuffer(1); }
         public void setRequestId(RequestId val) { setRequestIdInBuffer(1, val); }
@@ -126,7 +126,7 @@ public class Packet {
     // region Responses
 
     static abstract class Response extends Base {
-        Response(int buffSize) { super((byte)buffSize); }
+        Response(int buffSize) { super(buffSize); }
     }
 
     static final class CreateAccountResponse extends Response {
