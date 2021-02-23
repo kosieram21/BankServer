@@ -56,6 +56,7 @@ public class Packet {
             _buffer = ByteBuffer.allocate(length + 1);
             _buffer.put(0, length);
             _buffer.put(bytes, 0, length);
+            System.out.println(_buffer.array());
         }
     }
 
