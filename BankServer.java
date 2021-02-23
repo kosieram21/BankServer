@@ -6,6 +6,7 @@ public class BankServer {
         // create server socket that 'listens' for connections request from clients
         if (args.length != 1) throw new RuntimeException("Syntax: BankServer port-number");
         int port = Integer.parseInt(args[0]);
+
         System.out.println("Starting on port " + port);
         ServerSocket server = new ServerSocket(port);
 

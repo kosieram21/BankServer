@@ -1,4 +1,6 @@
 public enum Status {
     Ok,
-    Failed
+    Failed;
+
+    public static Status convert(byte val) { return Status.values()[val]; }
 }

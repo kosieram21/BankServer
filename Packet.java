@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 
 public class Packet {
@@ -13,79 +17,106 @@ public class Packet {
         }
     }
 
-    abstract static class Base {
-        private final ByteBuffer _buffer;
+    abstract static class Base implements Serializable {
+        private ByteBuffer _buffer;
 
-        Base(int buffSize) { _buffer = ByteBuffer.allocate(buffSize); }
+        Base(byte length) {
+            _buffer = ByteBuffer.allocate(length);
+            setByteInBuffer(0, length);
+        }
+
+        public byte getLength() { return getByteFromBuffer(0); }
 
         protected RequestId getRequestIdFromBuffer(int pos) { return RequestId.convert(_buffer.get(pos)); }
         protected void setRequestIdInBuffer(int pos, RequestId val) { _buffer.put(pos, (byte)val.ordinal()); }
+
+        protected byte getByteFromBuffer(int pos) { return _buffer.get(pos); }
+        protected void setByteInBuffer(int pos, byte val) { _buffer.put(pos, val); }
 
         protected int getIntFromBuffer(int pos) { return _buffer.getInt(pos); }
         protected void setIntInBuffer(int pos, int val) { _buffer.putInt(pos, val); }
 
         protected Status getStatusFromBuffer(int pos) { return Status.convert(_buffer.get(pos)); }
         protected void setStatusInBuffer(int pos, Status val) { _buffer.put(pos, (byte)val.ordinal()); }
+
+        @Serial
+        private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+            byte[] bytes = _buffer.array();
+            out.write(bytes);
+        }
+
+        @Serial
+        private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+            byte length = in.readByte();
+            byte[] bytes = new byte[length];
+            int bytesRead = in.read(bytes, 0, length);
+
+            if (bytesRead != length) throw new IOException("Ehh yo Mr.White you forgot some bytes.");
+
+            _buffer = ByteBuffer.allocate(length + 1);
+            _buffer.put(0, length);
+            _buffer.put(bytes, 1, length);
+        }
     }
 
     // region Requests
 
     static abstract class Request extends Base {
-        Request(int buffSize) { super(buffSize); }
+        Request(int buffSize) { super((byte)buffSize); }
 
-        public RequestId getRequestId() { return getRequestIdFromBuffer(0); }
-        public void setRequestId(RequestId val) { setRequestIdInBuffer(0, val); }
+        public RequestId getRequestId() { return getRequestIdFromBuffer(1); }
+        public void setRequestId(RequestId val) { setRequestIdInBuffer(1, val); }
     }
 
     static final class CreateAccountRequest extends Request {
         CreateAccountRequest() {
-            super(1);
+            super(2);
             setRequestId(RequestId.createAccount);
         }
     }
 
     static final class DepositRequest extends Request {
         DepositRequest() {
-            super(9);
+            super(10);
             setRequestId(RequestId.deposit);
         }
 
-        public int getUuid() { return getIntFromBuffer(1); }
-        public void setUuid(int val) { setIntInBuffer(1, val); }
+        public int getUuid() { return getIntFromBuffer(2); }
+        public void setUuid(int val) { setIntInBuffer(2, val); }
 
-        public int getAmount() { return getIntFromBuffer(5); }
-        public void setAmount(int val) { setIntInBuffer(5, val); }
+        public int getAmount() { return getIntFromBuffer(6); }
+        public void setAmount(int val) { setIntInBuffer(6, val); }
     }
 
     static final class GetBalanceRequest extends Request {
         GetBalanceRequest() {
-            super(5);
+            super(6);
             setRequestId(RequestId.getBalance);
         }
 
-        public int getUuid() { return getIntFromBuffer(1); }
-        public void setUuid(int val) { setIntInBuffer(1, val); }
+        public int getUuid() { return getIntFromBuffer(2); }
+        public void setUuid(int val) { setIntInBuffer(2, val); }
     }
 
     static final class TransferRequest extends Request {
         TransferRequest() {
-            super(13);
+            super(14);
             setRequestId(RequestId.transfer);
         }
 
-        public int getSourceUuid() { return getIntFromBuffer(1); }
-        public void setSourceUuid(int val) { setIntInBuffer(1, val); }
+        public int getSourceUuid() { return getIntFromBuffer(2); }
+        public void setSourceUuid(int val) { setIntInBuffer(2, val); }
 
-        public int getTargetUuid() { return getIntFromBuffer(5); }
-        public void setTargetUuid(int val) { setIntInBuffer(5, val); }
+        public int getTargetUuid() { return getIntFromBuffer(6); }
+        public void setTargetUuid(int val) { setIntInBuffer(6, val); }
 
-        public int getAmount() { return getIntFromBuffer(9); }
-        public void setAmount(int val) { setIntInBuffer(9, val); }
+        public int getAmount() { return getIntFromBuffer(10); }
+        public void setAmount(int val) { setIntInBuffer(10, val); }
     }
 
     static final class ExitRequest extends Request {
         ExitRequest() {
-            super(1);
+            super(2);
             setRequestId(RequestId.createAccount);
         }
     }
@@ -95,32 +126,32 @@ public class Packet {
     // region Responses
 
     static abstract class Response extends Base {
-        Response(int buffSize) { super(buffSize); }
+        Response(int buffSize) { super((byte)buffSize); }
     }
 
     static final class CreateAccountResponse extends Response {
-        CreateAccountResponse() { super(4); }
+        CreateAccountResponse() { super(5); }
 
-        public int getUuid() { return getIntFromBuffer(0); }
-        public void setUuid(int val) { setIntInBuffer(0, val); }
+        public int getUuid() { return getIntFromBuffer(1); }
+        public void setUuid(int val) { setIntInBuffer(1, val); }
     }
 
     static final class DepositResponse extends Response {
-        DepositResponse() { super(1); }
+        DepositResponse() { super(2); }
 
-        public Status getStatus() { return getStatusFromBuffer(0); }
-        public void setStatus(Status val) { setStatusInBuffer(0, val); }
+        public Status getStatus() { return getStatusFromBuffer(1); }
+        public void setStatus(Status val) { setStatusInBuffer(1, val); }
     }
 
     static final class GetBalanceResponse extends Response {
-        GetBalanceResponse() { super(4); }
+        GetBalanceResponse() { super(5); }
 
-        public int getAmount() { return getIntFromBuffer(0); }
-        public void setAmount(int val) { setIntInBuffer(0, val); }
+        public int getAmount() { return getIntFromBuffer(1); }
+        public void setAmount(int val) { setIntInBuffer(1, val); }
     }
 
     static final class TransferResponse extends Response {
-        TransferResponse() { super(1); }
+        TransferResponse() { super(2); }
 
         public Status getStatus() { return getStatusFromBuffer(1); }
         public void setStatus(Status val) { setStatusInBuffer(1, val); }
