@@ -1,6 +1,6 @@
 #Authors
 
-Mitch Kosieradzki, Shane Kosieradzki
+Mitch Kosieradzki (kosie011), Shane Kosieradzki (kosie013)
 
 # Compilation
 
