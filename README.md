@@ -1,3 +1,7 @@
+#Authors
+
+Mitch Kosieradzki, Shane Kosieradzki
+
 # Compilation
 
 From project root call the following commands to compile project:
