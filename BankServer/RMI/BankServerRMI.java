@@ -1,5 +1,6 @@
+package BankServer.RMI;
+
 import java.rmi.server.UnicastRemoteObject;
-import java.rmi.RMISecurityManager;
 import java.rmi.Naming;
 import java.rmi.registry.*;
 
@@ -13,7 +14,7 @@ public class BankServerRMI {
         BankServiceRMI bank_service = new BankServiceRMI();
         IBankServiceRMI bank_service_stub = (IBankServiceRMI)UnicastRemoteObject.exportObject(bank_service, 0);
 
-        final String bank_service_name = "BankService";
+        final String bank_service_name = "tcp.BankService";
         if(args.length == 0) {
             Naming.bind(bank_service_name, bank_service_stub);
         }

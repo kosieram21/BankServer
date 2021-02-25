@@ -1,7 +1,10 @@
+package BankServer.TCP;
+
 import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import BankServer.Status;
 
 public class Packet {
     enum RequestId {

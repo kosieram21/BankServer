@@ -1,0 +1,3 @@
+grant codeBase "file:./out/production/tcp.BankServer/-" {
+    permission java.security.AllPermission;
+};

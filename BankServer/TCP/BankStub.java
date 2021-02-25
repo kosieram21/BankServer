@@ -1,5 +1,8 @@
+package BankServer.TCP;
+
 import java.io.IOException;
 import java.net.Socket;
+import BankServer.Status;
 
 public final class BankStub extends BankCommunication {
     BankStub(Socket socket) throws IOException { super(socket); }

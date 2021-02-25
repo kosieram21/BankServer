@@ -1,3 +1,5 @@
+package BankServer;
+
 import java.util.Hashtable;
 
 public class Bank {

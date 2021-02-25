@@ -1,3 +1,8 @@
+package BankServer.RMI;
+
+import BankServer.Bank;
+import BankServer.Status;
+
 import java.rmi.RemoteException;
 
 public class BankServiceRMI implements IBankServiceRMI {

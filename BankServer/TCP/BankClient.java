@@ -1,6 +1,9 @@
+package BankServer.TCP;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Random;
+import BankServer.Status;
 
 public class BankClient {
     static class WorkerThread extends Thread {

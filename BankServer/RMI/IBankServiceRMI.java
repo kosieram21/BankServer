@@ -1,3 +1,7 @@
+package BankServer.RMI;
+
+import BankServer.Status;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

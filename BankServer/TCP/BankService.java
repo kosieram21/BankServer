@@ -1,5 +1,8 @@
+package BankServer.TCP;
+
 import java.io.IOException;
 import java.net.Socket;
+import BankServer.Bank;
 
 public final class BankService extends BankCommunication {
     private final Bank _bank = Bank.getInstance();
