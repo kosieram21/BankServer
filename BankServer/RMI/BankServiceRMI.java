@@ -3,13 +3,15 @@ package BankServer.RMI;
 import BankServer.Bank;
 import BankServer.Status;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 public class BankServiceRMI implements IBankServiceRMI {
-    private final Bank _bank = Bank.getInstance();
+    private final Bank _bank;
 
-    public BankServiceRMI () throws RemoteException {
+    public BankServiceRMI () throws RemoteException, IOException {
         super();
+        _bank = Bank.getInstance();
     }
 
     @Override

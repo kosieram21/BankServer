@@ -5,9 +5,12 @@ import java.net.Socket;
 import BankServer.Bank;
 
 public final class BankService extends BankCommunication {
-    private final Bank _bank = Bank.getInstance();
+    private final Bank _bank;
 
-    BankService(Socket socket) throws IOException { super(socket); }
+    BankService(Socket socket) throws IOException {
+        super(socket);
+        _bank = Bank.getInstance();
+    }
 
     public boolean handleRequest() throws IOException, ClassNotFoundException {
         boolean exit_session = false;
