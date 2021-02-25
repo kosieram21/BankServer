@@ -11,8 +11,9 @@ public class BankClient {
         private final int[] _uuids;
         private final int _iterations;
 
-        WorkerThread(Socket socket, int[] uuids, int iterations) throws IOException {
-            _bank_stub = new BankStub(socket);
+        WorkerThread(BankStub bank_stub, int[] uuids, int iterations) throws IOException {
+            //_bank_stub = new BankStub(socket);
+            _bank_stub = bank_stub;
             _uuids = uuids;
             _iterations = iterations;
         }
@@ -30,15 +31,15 @@ public class BankClient {
             catch (IOException | ClassNotFoundException ex) {
                 ex.printStackTrace();
             }
-            finally {
+            /*finally {
                 try {
-                    _bank_stub.exit();
+                    //_bank_stub.exit();
                     System.out.println("Client exit.");
                 }
                 catch (IOException ex) {
                     ex.printStackTrace();
                 }
-            }
+            }*/
         }
     }
 
@@ -74,7 +75,7 @@ public class BankClient {
 
         WorkerThread[] threads = new WorkerThread[thread_count];
         for(int i = 0; i < thread_count; i++) {
-            threads[i] = new WorkerThread(new Socket(host, port), uuids, iteration_count);
+            threads[i] = new WorkerThread(bank_stub, uuids, iteration_count);
             threads[i].run();
         }
 
