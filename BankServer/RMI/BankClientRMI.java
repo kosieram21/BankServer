@@ -67,7 +67,7 @@ public class BankClientRMI {
 
         BankClientRMI.WorkerThread[] threads = new BankClientRMI.WorkerThread[thread_count];
         for(int i = 0; i < thread_count; i++) {
-            threads[i] = new BankClientRMI.WorkerThread((IBankServiceRMI) Naming.lookup(bank_service_name), uuids, iteration_count);
+            threads[i] = new BankClientRMI.WorkerThread(bank_service, uuids, iteration_count);
             threads[i].run();
         }
 
