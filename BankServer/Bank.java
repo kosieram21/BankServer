@@ -1,6 +1,10 @@
 package BankServer;
 
+import java.io.IOException;
 import java.util.Hashtable;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.FileHandler;
 
 public class Bank {
     private final Hashtable<Integer, Account> _accounts = new Hashtable<Integer, Account>();
@@ -25,7 +29,12 @@ public class Bank {
         }
     }
 
-    private Bank() {}
+    private Bank() throws IOException {
+        _logger = Logger.getLogger(Bank.class.getName());
+        FileHandler handler = new FileHandler("serverLogfile%u.txt");
+        _logger.addHandler(handler);
+        handler.setFormatter(new SimpleFormatter());
+    }
 
     private static Bank _instance;
     public synchronized static Bank getInstance() throws IOException {
