@@ -13,8 +13,8 @@ public class BankServerRMI {
         IBankServiceRMI bank_service_stub = (IBankServiceRMI)UnicastRemoteObject.exportObject(bank_service, 0);
 
         final String bank_service_name = "BankServer.RMI.BankServiceRMI";
-        Naming.bind(bank_service_name, bank_service_stub);
-        //Registry localRegistry = LocateRegistry.getRegistry(port);
-        //localRegistry.bind(bank_service_name, bank_service_stub);
+        LocateRegistry.createRegistry(port);
+        Registry localRegistry = LocateRegistry.getRegistry(port);
+        localRegistry.bind(bank_service_name, bank_service_stub);
     }
 }
