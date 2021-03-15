@@ -1,7 +1,6 @@
 package BankServer.TCP;
 
 import java.io.IOException;
-import java.io.Serial;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import BankServer.Status;
@@ -35,13 +34,11 @@ public class Packet {
         protected int getIntFromBuffer(int pos) { return _buffer.getInt(pos); }
         protected void setIntInBuffer(int pos, int val) { _buffer.putInt(pos, val); }
 
-        @Serial
         private void writeObject(java.io.ObjectOutputStream out) throws IOException {
             byte[] bytes = _buffer.array();
             out.write(bytes);
         }
 
-        @Serial
         private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
             byte length = in.readByte();
             byte[] bytes = new byte[length];
