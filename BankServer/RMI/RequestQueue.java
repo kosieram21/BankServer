@@ -31,15 +31,17 @@ public class RequestQueue {
     }
 
     static class CreateAccountRequest extends Request {
-        CreateAccountRequest(int timestamp) { super(timestamp); }
+        CreateAccountRequest(int timestamp, int processId) {
+            super(timestamp, processId);
+        }
     }
 
     static class DepositRequest extends Request {
         private final int _uuid;
         private final int _amount;
 
-        DepositRequest(int timestamp, int uuid, int amount) {
-            super(timestamp);
+        DepositRequest(int timestamp, int processId, int uuid, int amount) {
+            super(timestamp, processId);
             _uuid = uuid;
             _amount = amount;
         }
@@ -56,8 +58,8 @@ public class RequestQueue {
     static class GetBalanceRequest extends Request {
         private final int _uuid;
 
-        GetBalanceRequest(int timestamp, int uuid) {
-            super(timestamp);
+        GetBalanceRequest(int timestamp, int processId, int uuid) {
+            super(timestamp, processId);
             _uuid = uuid;
         }
 
@@ -71,8 +73,8 @@ public class RequestQueue {
         private final int _targetUuid;
         private final int _amount;
 
-        TransferRequest(int timestamp, int sourceUuid, int targetUuid, int amount) {
-            super(timestamp);
+        TransferRequest(int timestamp, int processId, int sourceUuid, int targetUuid, int amount) {
+            super(timestamp, processId);
             _sourceUuid = sourceUuid;
             _targetUuid = targetUuid;
             _amount = amount;
