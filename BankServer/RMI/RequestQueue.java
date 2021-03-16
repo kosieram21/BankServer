@@ -7,18 +7,26 @@ import java.util.Queue;
 public class RequestQueue {
     static class Request implements Comparable<Request> {
         private final int _timestamp;
+        private final int _processId;
 
-        Request(int timestamp) {
+        Request(int timestamp, int processId) {
             _timestamp = timestamp;
+            _processId = processId;
         }
 
         public int getTimestamp() {
             return _timestamp;
         }
 
+        public int getProcessId() {
+            return _processId;
+        }
+
         @Override
         public int compareTo(Request o) {
-            return Integer.compare(_timestamp, o._timestamp);
+            return Integer.compare(_timestamp, o._timestamp) == 0 ?
+                    Integer.compare(_processId, o._processId) :
+                    Integer.compare(_timestamp, o._timestamp);
         }
     }
 
