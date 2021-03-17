@@ -8,10 +8,12 @@ import java.rmi.RemoteException;
 
 public class BankServiceRMI implements IBankServiceRMI {
     private final Bank _bank;
+    private  final LamportClock _clock;
 
     public BankServiceRMI () throws RemoteException, IOException {
         super();
         _bank = Bank.getInstance();
+        _clock = LamportClock.getInstance();
     }
 
     @Override
