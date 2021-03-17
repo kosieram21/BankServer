@@ -1,4 +1,4 @@
-#Authors
+# Authors
 
 Mitch Kosieradzki (kosie011), Shane Kosieradzki (kosie013)
 
