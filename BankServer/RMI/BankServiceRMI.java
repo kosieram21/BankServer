@@ -27,21 +27,31 @@ public class BankServiceRMI implements IBankServiceRMI {
     public int createAccount() throws RemoteException {
         _clock.advance();
         _request_queue.enqueue(new RequestQueue.CreateAccountRequest(_clock.getValue(), _local_server.getServerId()));
+        // TODO: multicast to peer servers
         return _bank.createAccount(); // TODO: get response from event
     }
 
     @Override
     public Status deposit(int uuid, int amount) throws RemoteException {
-        return _bank.deposit(uuid, amount);
+        _clock.advance();
+        _request_queue.enqueue(new RequestQueue.DepositRequest(_clock.getValue(), _local_server.getServerId(), uuid, amount));
+        // TODO: multicast to peer servers
+        return _bank.deposit(uuid, amount); // TODO: get response from event
     }
 
     @Override
     public int getBalance(int uuid) throws RemoteException {
-        return _bank.getBalance(uuid);
+        _clock.advance();
+        _request_queue.enqueue(new RequestQueue.GetBalanceRequest(_clock.getValue(), _local_server.getServerId(), uuid));
+        // TODO: multicast to peer servers
+        return _bank.getBalance(uuid); // TODO: get response from event
     }
 
     @Override
     public Status transfer(int source_uuid, int target_uuid, int amount) throws RemoteException {
-        return _bank.transfer(source_uuid, target_uuid, amount);
+        _clock.advance();
+        _request_queue.enqueue(new RequestQueue.TransferRequest(_clock.getValue(), _local_server.getServerId(), source_uuid, target_uuid, amount));
+        // TODO: multicast to peer servers
+        return _bank.transfer(source_uuid, target_uuid, amount); // TODO: get response from event
     }
 }
