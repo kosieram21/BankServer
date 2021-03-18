@@ -126,4 +126,11 @@ public class RequestQueue {
         for(IRequestProcessedListener listener : listeners)
             listener.RequestProcessed(event);
     }
+
+    private static RequestQueue _instance;
+    public synchronized static RequestQueue getInstance() {
+        if (_instance == null)
+            _instance = new RequestQueue();
+        return _instance;
+    }
 }

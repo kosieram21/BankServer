@@ -5,20 +5,29 @@ import BankServer.Status;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.List;
 
 public class BankServiceRMI implements IBankServiceRMI {
     private final Bank _bank;
     private  final LamportClock _clock;
+    private final RequestQueue _request_queue;
+    private final BankServerReplica _local_server;
+    private final List<BankServerReplica> _peer_servers;
 
-    public BankServiceRMI () throws RemoteException, IOException {
+    public BankServiceRMI (BankServerReplica local_server, List<BankServerReplica> peer_servers) throws RemoteException, IOException {
         super();
         _bank = Bank.getInstance();
         _clock = LamportClock.getInstance();
+        _request_queue = RequestQueue.getInstance();
+        _local_server = local_server;
+        _peer_servers = peer_servers;
     }
 
     @Override
     public int createAccount() throws RemoteException {
-        return _bank.createAccount();
+        _clock.advance();
+        _request_queue.enqueue(new RequestQueue.CreateAccountRequest(_clock.getValue(), _local_server.getServerId()));
+        return _bank.createAccount(); // TODO: get response from event
     }
 
     @Override
