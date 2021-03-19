@@ -33,7 +33,7 @@ public class BankClientRMI {
                     Status status = _bank_service.transfer(source_uuid, target_uuid, transfer_amount);
                 }
             }
-            catch (IOException ex) {
+            catch (IOException | InterruptedException ex) {
                 ex.printStackTrace();
             }
         }
