@@ -21,8 +21,7 @@ public class LamportClock {
 
     private static LamportClock _instance;
     public synchronized static LamportClock getInstance() {
-        if (_instance == null)
-            _instance = new LamportClock();
+        if (_instance == null) _instance = new LamportClock();
         return _instance;
     }
 }

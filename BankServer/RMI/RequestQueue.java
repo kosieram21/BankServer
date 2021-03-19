@@ -1,26 +1,72 @@
 package BankServer.RMI;
 
+import BankServer.Bank;
+import BankServer.Status;
+
 import javax.swing.event.EventListenerList;
+import java.io.IOException;
+import java.util.EventObject;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class RequestQueue {
-    static class Request implements Comparable<Request> {
+
+    // region Response Events
+    static abstract class RequestProcessedEvent extends EventObject {
+
+        public RequestProcessedEvent(Object source) { super(source); }
+    }
+
+    static class CreateAccountProcessedEvent extends RequestProcessedEvent {
+        private final int _uuid;
+
+        public CreateAccountProcessedEvent(Object source) {
+            super(source);
+        }
+    }
+
+    static class DepositProcessedEvent extends RequestProcessedEvent {
+        private final Status _status;
+
+        public DepositProcessedEvent(Object source) {
+            super(source);
+        }
+    }
+
+    static class GetBalanceProcessedEvent extends RequestProcessedEvent {
+        private final int _balance;
+
+        public GetBalanceProcessedEvent(Object source) {
+            super(source);
+        }
+    }
+
+    static class TransferProcessedEvent extends RequestProcessedEvent {
+        private final Status _status;
+
+        public TransferProcessedEvent(Object source) {
+            super(source);
+        }
+    }
+
+    // endregion
+
+    // region Request Hierarchy
+
+    static abstract class Request implements Comparable<Request> {
         private final int _timestamp;
         private final int _processId;
+        protected final Bank _bank;
 
-        Request(int timestamp, int processId) {
+        Request(int timestamp, int processId) throws IOException {
             _timestamp = timestamp;
             _processId = processId;
+            _bank = Bank.getInstance();
         }
 
-        public int getTimestamp() {
-            return _timestamp;
-        }
+        public int getTimestamp() { return _timestamp; }
 
-        public int getProcessId() {
-            return _processId;
-        }
+        public int getProcessId() { return _processId; }
 
         @Override
         public int compareTo(Request o) {
@@ -28,11 +74,17 @@ public class RequestQueue {
                     Integer.compare(_processId, o._processId) :
                     Integer.compare(_timestamp, o._timestamp);
         }
+
+        abstract void execute();
     }
 
     static class CreateAccountRequest extends Request {
         CreateAccountRequest(int timestamp, int processId) {
             super(timestamp, processId);
+        }
+
+        void execute() {
+            _bank.createAccount();
         }
     }
 
@@ -93,6 +145,8 @@ public class RequestQueue {
         }
     }
 
+    // endregion
+
     private final PriorityQueue<Request> _queue;
     private final EventListenerList _eventListeners;
 
@@ -107,6 +161,11 @@ public class RequestQueue {
         // fire the event processed event to alert the server's client interface of the
         // proper response to send back to the client. An optimization that could be made
         // is to only have the background thread run when there are events in the queue.
+
+        Request request = _queue.poll();
+        RequestProcessedEvent event = request.execute();
+
+        raiseRequestProcessedEvent(event);
     }
 
     public synchronized void enqueue(Request request) {
@@ -121,7 +180,7 @@ public class RequestQueue {
         _eventListeners.remove(IRequestProcessedListener.class, listener);
     }
 
-    private void onRequestProcessed(RequestProcessedEvent event) {
+    private void raiseRequestProcessedEvent(RequestProcessedEvent event) {
         IRequestProcessedListener[] listeners = _eventListeners.getListeners(IRequestProcessedListener.class);
         for(IRequestProcessedListener listener : listeners)
             listener.RequestProcessed(event);
