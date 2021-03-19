@@ -47,7 +47,7 @@ public class BankClientRMI {
         final int port = Integer.parseInt(args[1]);
         final int thread_count = Integer.parseInt(args[2]);
         final int iteration_count = Integer.parseInt(args[3]);
-        final String bank_service_name = "//" + host + ":" + port + "/BankServer.RMI.BankServiceRMI";
+        final String bank_service_name = "//" + host + ":" + port + "/" + ServiceNames.BANK_SERVICE_RMI;
 
         IBankServiceRMI bank_service = (IBankServiceRMI) Naming.lookup(bank_service_name);
 

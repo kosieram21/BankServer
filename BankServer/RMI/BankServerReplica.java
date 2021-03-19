@@ -1,5 +1,10 @@
 package BankServer.RMI;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+
 public class BankServerReplica {
     private final String _hostname;
     private final int _serverId;
@@ -21,5 +26,11 @@ public class BankServerReplica {
 
     public int getRmiRegistryPort() {
         return _rmiRegistryPort;
+    }
+
+    public IBankServicePeer getBankServicePeerInterface() throws NotBoundException, MalformedURLException, RemoteException {
+        final String bank_service_peer_name = "//" + _hostname + ":" + _rmiRegistryPort + "/" + ServiceNames.BANK_SERVICE_PEER;
+        IBankServicePeer bank_service_peer = (IBankServicePeer) Naming.lookup(bank_service_peer_name);
+        return bank_service_peer;
     }
 }

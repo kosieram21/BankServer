@@ -2,8 +2,8 @@ package BankServer.RMI;
 
 import BankServer.Status;
 
-import java.io.IOException;
 import java.rmi.Remote;
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 public interface IBankServiceRMI extends Remote {

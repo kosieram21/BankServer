@@ -2,6 +2,7 @@ package BankServer.RMI;
 
 import BankServer.Bank;
 
+import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.Naming;
 import java.rmi.registry.*;
@@ -12,7 +13,7 @@ import java.util.Scanner;
 import java.util.List;
 
 public class BankServerRMI {
-    private static List<BankServerReplica> ReadConfigFile(String filepath) throws FileNotFoundException {
+    private static List<BankServerReplica> readConfigFile(String filepath) throws FileNotFoundException {
         File file = new File(filepath);
         Scanner scanner = new Scanner(file);
 
@@ -33,7 +34,7 @@ public class BankServerRMI {
         return replicas;
     }
 
-    private static BankServerReplica GetReplica(int pId, List<BankServerReplica> replicas) throws Exception {
+    private static BankServerReplica getReplica(int pId, List<BankServerReplica> replicas) throws Exception {
         for(BankServerReplica replica : replicas) {
             if(replica.getServerId() == pId)
                 return replica;
@@ -42,21 +43,33 @@ public class BankServerRMI {
         throw new Exception("Server replica of with id: " + String.valueOf(pId) + " not found in config.");
     }
 
+    private static Registry getRmiRegistry(int port) throws RemoteException {
+        Registry registry;
+        try {
+            registry = LocateRegistry.getRegistry(port);
+        }
+        catch (RemoteException e) {
+            LocateRegistry.createRegistry(port);
+            registry = LocateRegistry.getRegistry(port);
+        }
+        return registry;
+    }
+
     public static void main(String[] args) throws Exception {
         if (args.length != 2) throw new RuntimeException("Syntax: tcp.BankServer port-number");
         final int pId = Integer.parseInt(args[0]);
-        final List<BankServerReplica> replicas = ReadConfigFile(args[1]);
+        final List<BankServerReplica> replicas = readConfigFile(args[1]);
 
-        final BankServerReplica replica = GetReplica(pId, replicas);
+        final BankServerReplica replica = getReplica(pId, replicas);
         replicas.remove(replica);
         final int port = replica.getRmiRegistryPort();
 
         BankServiceRMI bank_service = new BankServiceRMI(replica, replicas);
         IBankServiceRMI bank_service_stub = (IBankServiceRMI)UnicastRemoteObject.exportObject(bank_service, 0);
+        IBankServicePeer bank_service_peer_stub = null;
 
-        final String bank_service_name = "BankServer.RMI.BankServiceRMI";
-        LocateRegistry.createRegistry(port);
-        Registry localRegistry = LocateRegistry.getRegistry(port);
-        localRegistry.bind(bank_service_name, bank_service_stub);
+        Registry localRegistry = getRmiRegistry(port);
+        localRegistry.bind(ServiceNames.BANK_SERVICE_RMI, bank_service_stub);
+        localRegistry.bind(ServiceNames.BANK_SERVICE_PEER, bank_service_peer_stub);
     }
 }
