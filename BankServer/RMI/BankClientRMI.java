@@ -7,6 +7,7 @@ import BankServer.TCP.BankStub;
 import java.io.IOException;
 import java.net.Socket;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Random;
@@ -33,7 +34,7 @@ public class BankClientRMI {
                     Status status = _bank_service.transfer(source_uuid, target_uuid, transfer_amount);
                 }
             }
-            catch (IOException | InterruptedException ex) {
+            catch (IOException | InterruptedException | NotBoundException ex) {
                 ex.printStackTrace();
             }
         }

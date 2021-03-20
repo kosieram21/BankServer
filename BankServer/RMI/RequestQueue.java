@@ -7,30 +7,15 @@ import javax.swing.event.EventListenerList;
 import java.io.IOException;
 import java.util.EventObject;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 public class RequestQueue {
-    // region Response Events
-    static abstract class RequestProcessedEvent extends EventObject {
-        private final int _timestamp;
-        private final int _processId;
+    // region Response
+    static abstract class Response { }
 
-        public RequestProcessedEvent(Object source, int timestamp, int processId) {
-            super(source);
-            _timestamp = timestamp;
-            _processId = processId;
-        }
-
-        public int getTimestamp() { return _timestamp; }
-
-        public int getProcessId() { return _processId; }
-    }
-
-    static class CreateAccountProcessedEvent extends RequestProcessedEvent {
+    static class CreateAccountResponse extends Response {
         private final int _uuid;
 
-        public CreateAccountProcessedEvent(Object source, int timestamp, int processId, int uuid) {
-            super(source, timestamp, processId);
+        public CreateAccountResponse(int uuid) {
             _uuid = uuid;
         }
 
@@ -39,11 +24,10 @@ public class RequestQueue {
         }
     }
 
-    static class DepositProcessedEvent extends RequestProcessedEvent {
+    static class DepositResponse extends Response {
         private final Status _status;
 
-        public DepositProcessedEvent(Object source, int timestamp, int processId, Status status) {
-            super(source, timestamp, processId);
+        public DepositResponse(Status status) {
             _status = status;
         }
 
@@ -52,11 +36,10 @@ public class RequestQueue {
         }
     }
 
-    static class GetBalanceProcessedEvent extends RequestProcessedEvent {
+    static class GetBalanceResponse extends Response {
         private final int _balance;
 
-        public GetBalanceProcessedEvent(Object source, int timestamp, int processId, int balance) {
-            super(source, timestamp, processId);
+        public GetBalanceResponse(int balance) {
             _balance = balance;
         }
 
@@ -65,11 +48,10 @@ public class RequestQueue {
         }
     }
 
-    static class TransferProcessedEvent extends RequestProcessedEvent {
+    static class TransferResponse extends Response {
         private final Status _status;
 
-        public TransferProcessedEvent(Object source, int timestamp, int processId, Status status) {
-            super(source, timestamp, processId);
+        public TransferResponse(Status status) {
             _status = status;
         }
 
@@ -104,7 +86,7 @@ public class RequestQueue {
                     Integer.compare(_timestamp, o._timestamp);
         }
 
-        abstract RequestProcessedEvent execute();
+        abstract Response execute();
     }
 
     static class CreateAccountRequest extends Request {
@@ -112,9 +94,9 @@ public class RequestQueue {
             super(timestamp, processId);
         }
 
-        CreateAccountProcessedEvent execute() {
+        CreateAccountResponse execute() {
             int uuid = _bank.createAccount();
-            return new CreateAccountProcessedEvent(this, getTimestamp(), getProcessId(), uuid);
+            return new CreateAccountResponse(uuid);
         }
     }
 
@@ -136,9 +118,9 @@ public class RequestQueue {
             return _amount;
         }
 
-        DepositProcessedEvent execute() {
+        DepositResponse execute() {
             Status status = _bank.deposit(_uuid, _amount);
-            return new DepositProcessedEvent(this, getTimestamp(), getProcessId(), status);
+            return new DepositResponse(status);
         }
     }
 
@@ -154,9 +136,9 @@ public class RequestQueue {
             return _uuid;
         }
 
-        GetBalanceProcessedEvent execute() {
+        GetBalanceResponse execute() {
             int balance = _bank.getBalance(_uuid);
-            return new GetBalanceProcessedEvent(this, getTimestamp(), getProcessId(), balance);
+            return new GetBalanceResponse(balance);
         }
     }
 
@@ -184,9 +166,9 @@ public class RequestQueue {
             return _amount;
         }
 
-        TransferProcessedEvent execute() {
+        TransferResponse execute() {
             Status status = _bank.transfer(_sourceUuid, _targetUuid, _amount);
-            return new TransferProcessedEvent(this, getTimestamp(), getProcessId(), status);
+            return new TransferResponse(status);
         }
     }
 
@@ -200,7 +182,7 @@ public class RequestQueue {
         _eventListeners = new EventListenerList();
     }
 
-    public RequestProcessedEvent getResponse(Request request) throws InterruptedException {
+    public Response getResponse(Request request) throws InterruptedException {
         Request front = _queue.peek();
         if(front.getTimestamp() != request.getTimestamp() && front.getProcessId() != request.getProcessId()) {
             request.wait();

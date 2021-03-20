@@ -70,7 +70,7 @@ public class BankServiceRMI implements IBankServiceRMI, IRequestProcessedListene
             peer.createAccount(_clock.getValue(), _local_server.getServerId());
         }
 
-        RequestQueue.CreateAccountProcessedEvent response = (RequestQueue.CreateAccountProcessedEvent)_request_queue.getResponse(request);
+        RequestQueue.CreateAccountResponse response = (RequestQueue.CreateAccountResponse)_request_queue.getResponse(request);
 
         // multicast execute
         for (BankServerReplica replica : _peer_servers) {
