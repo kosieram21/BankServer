@@ -1,7 +1,6 @@
 package BankServer.RMI;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 public class BankServicePeer implements IBankServicePeer {
     private final LamportClock _clock;

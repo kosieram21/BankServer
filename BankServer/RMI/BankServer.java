@@ -57,14 +57,14 @@ public class BankServer {
         final int pId = Integer.parseInt(args[0]);
         final List<BankServerReplica> replicas = readConfigFile(args[1]);
 
-        final BankServerReplica replica = getReplica(pId, replicas);
-        replicas.remove(replica);
-        final int port = replica.getRmiRegistryPort();
+        final BankServerReplica local_replica = getReplica(pId, replicas);
+        replicas.remove(local_replica);
+        final int port = local_replica.getRmiRegistryPort();
 
-        BankService bank_service = new BankService(replica, replicas);
+        BankService bank_service = new BankService(local_replica, replicas);
         IBankService bank_service_stub = (IBankService)UnicastRemoteObject.exportObject(bank_service, 0);
 
-        BankServicePeer bank_service_peer = new BankServicePeer(replica);
+        BankServicePeer bank_service_peer = new BankServicePeer(local_replica);
         IBankServicePeer bank_service_peer_stub = (IBankServicePeer)UnicastRemoteObject.exportObject(bank_service_peer, 0);
 
         Registry localRegistry = getRmiRegistry(port);
