@@ -189,7 +189,7 @@ public class RequestQueue {
         else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
-    public synchronized Request remove(int timestamp, int pId) throws NullPointerException {
+    public synchronized Response getResponseNow(int timestamp, int pId, int local_pId) throws NullPointerException {
         Request matching_request = null;
         for (Request request : _queue) {
             if (request.getTimestamp() == timestamp && request.getProcessId() == pId) {
@@ -200,12 +200,13 @@ public class RequestQueue {
 
         if (matching_request == null) throw new NullPointerException("No matching request to remove");
         _queue.remove(matching_request);
+        Response matching_response = matching_request.execute();
 
         Request next_request = _queue.peek();
         if (next_request != null && next_request.getProcessId() == pId)
             next_request.notify();
 
-        return matching_request;
+        return matching_response;
     }
 
     public synchronized void enqueue(Request request) {

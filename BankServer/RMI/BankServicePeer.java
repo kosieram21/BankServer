@@ -35,6 +35,6 @@ public class BankServicePeer implements IBankServicePeer{
 
     @Override
     public void execute(int timestamp, int pId) throws RemoteException {
-        RequestQueue.Request matching_request = _request_queue.remove(timestamp, pId);
+        _request_queue.getResponseNow(timestamp, pId, _local_server.getServerId());
     }
 }
