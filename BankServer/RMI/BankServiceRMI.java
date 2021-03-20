@@ -41,31 +41,35 @@ public class BankServiceRMI implements IBankServiceRMI {
         RequestQueue.DepositRequest request = new RequestQueue.DepositRequest(timestamp, _local_server.getServerId(), uuid, amount);
         RequestQueue.DepositResponse response =
                 (RequestQueue.DepositResponse)executeRequest(request,
-                        peer -> peer.deposit(request.getTimestamp(), _local_server.getServerId(), uuid, amount));
+                        peer -> peer.deposit(request.getTimestamp(), _local_server.getServerId(), request.getUuid(), request.getAmount()));
         return response.getStatus();
     }
 
     @Override
-    public int getBalance(int uuid) throws RemoteException, IOException, InterruptedException, NotBoundException {
+    public int getBalance(int uuid) throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
         RequestQueue.GetBalanceRequest request = new RequestQueue.GetBalanceRequest(timestamp, _local_server.getServerId(), uuid);
         RequestQueue.GetBalanceResponse response =
                 (RequestQueue.GetBalanceResponse)executeRequest(request,
-                        peer -> peer.getBalance(request.getTimestamp(), _local_server.getServerId(), uuid));
+                        peer -> peer.getBalance(request.getTimestamp(), _local_server.getServerId(), request.getUuid()));
         return response.getBalance();
     }
 
     @Override
-    public Status transfer(int source_uuid, int target_uuid, int amount) throws RemoteException, IOException, InterruptedException, NotBoundException {
+    public Status transfer(int source_uuid, int target_uuid, int amount)
+            throws IOException, InterruptedException, NotBoundException
+    {
         int timestamp = _clock.advance();
         RequestQueue.TransferRequest request = new RequestQueue.TransferRequest(timestamp, _local_server.getServerId(), source_uuid, target_uuid, amount);
         RequestQueue.TransferResponse response =
                 (RequestQueue.TransferResponse)executeRequest(request,
-                        peer -> peer.transfer(request.getTimestamp(), _local_server.getServerId(), source_uuid, target_uuid, amount));
+                        peer -> peer.transfer(request.getTimestamp(), _local_server.getServerId(), request.getSourceUuid(), request.getTargetUuid(), request.getAmount()));
         return response.getStatus();
     }
 
-    private RequestQueue.Response executeRequest(RequestQueue.Request request, ThrowingConsumer<IBankServicePeer> peer_message) throws RemoteException, NotBoundException, MalformedURLException, InterruptedException {
+    private RequestQueue.Response executeRequest(RequestQueue.Request request, ThrowingConsumer<IBankServicePeer> peer_message)
+            throws RemoteException, NotBoundException, MalformedURLException, InterruptedException
+    {
         _request_queue.enqueue(request);
         multicast(peer_message);
         RequestQueue.Response response = _request_queue.getResponse(request);
@@ -73,8 +77,11 @@ public class BankServiceRMI implements IBankServiceRMI {
         return response;
     }
 
-    private void multicast(ThrowingConsumer<IBankServicePeer> sendMessage) throws RemoteException, NotBoundException, MalformedURLException {
-        for (BankServerReplica replica : _peer_servers) {
+    private void multicast(ThrowingConsumer<IBankServicePeer> sendMessage)
+            throws RemoteException, NotBoundException, MalformedURLException
+    {
+        for (BankServerReplica replica : _peer_servers)
+        {
             IBankServicePeer peer = replica.getBankServicePeerInterface();
             sendMessage.accept(peer);
         }

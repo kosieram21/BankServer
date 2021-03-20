@@ -88,6 +88,8 @@ public class RequestQueue {
         }
 
         abstract Response execute();
+
+        abstract int sendToPeer(IBankServicePeer peer);
     }
 
     static class CreateAccountRequest extends Request {
@@ -98,6 +100,10 @@ public class RequestQueue {
         CreateAccountResponse execute() {
             int uuid = _bank.createAccount();
             return new CreateAccountResponse(uuid);
+        }
+
+        int sendToPeer(IBankServicePeer peer) {
+            peer.cr
         }
     }
 

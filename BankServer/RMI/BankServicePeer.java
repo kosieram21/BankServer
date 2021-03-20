@@ -18,22 +18,22 @@ public class BankServicePeer implements IBankServicePeer {
     }
 
     @Override
-    public int createAccount(int timestamp, int pId) throws RemoteException, IOException, InterruptedException {
+    public int createAccount(int timestamp, int pId) throws IOException, InterruptedException {
         return enqueueRequest(new RequestQueue.CreateAccountRequest(timestamp, pId));
     }
 
     @Override
-    public int deposit(int timestamp, int pId, int uuid, int amount) throws RemoteException, IOException, InterruptedException {
+    public int deposit(int timestamp, int pId, int uuid, int amount) throws IOException, InterruptedException {
         return enqueueRequest(new RequestQueue.DepositRequest(timestamp, pId, uuid, amount));
     }
 
     @Override
-    public int getBalance(int timestamp, int pId, int uuid) throws RemoteException, IOException, InterruptedException {
+    public int getBalance(int timestamp, int pId, int uuid) throws IOException, InterruptedException {
         return enqueueRequest(new RequestQueue.GetBalanceRequest(timestamp, pId, uuid));
     }
 
     @Override
-    public int transfer(int timestamp, int pId, int source_uuid, int target_uuid, int amount) throws RemoteException, IOException, InterruptedException {
+    public int transfer(int timestamp, int pId, int source_uuid, int target_uuid, int amount) throws IOException, InterruptedException {
         return enqueueRequest(new RequestQueue.TransferRequest(timestamp, pId, source_uuid, target_uuid, amount));
     }
 
