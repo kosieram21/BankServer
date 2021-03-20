@@ -3,9 +3,19 @@ package BankServer.RMI;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
-public class BankServicePeer implements IBankServicePeer{
-    private final LamportClock _clock = LamportClock.getInstance();
-    private final RequestQueue _request_queue = RequestQueue.getInstance();
+public class BankServicePeer implements IBankServicePeer {
+    private final LamportClock _clock;
+    private final RequestQueue _request_queue;
+
+    private final BankServerReplica _local_server;
+
+    public BankServicePeer(BankServerReplica local_server) {
+        super();
+        _clock = LamportClock.getInstance();
+        _request_queue = RequestQueue.getInstance();
+
+        _local_server = local_server;
+    }
 
     @Override
     public int createAccount(int timestamp, int pId) throws RemoteException, IOException, InterruptedException {

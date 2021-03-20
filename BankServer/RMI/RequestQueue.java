@@ -203,7 +203,7 @@ public class RequestQueue {
         Response matching_response = matching_request.execute();
 
         Request next_request = _queue.peek();
-        if (next_request != null && next_request.getProcessId() == pId)
+        if (next_request != null && next_request.getProcessId() == local_pId)
             next_request.notify();
 
         return matching_response;

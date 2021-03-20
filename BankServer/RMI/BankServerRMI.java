@@ -65,7 +65,7 @@ public class BankServerRMI {
         BankServiceRMI bank_service = new BankServiceRMI(replica, replicas);
         IBankServiceRMI bank_service_stub = (IBankServiceRMI)UnicastRemoteObject.exportObject(bank_service, 0);
 
-        BankServicePeer bank_service_peer = new BankServicePeer();
+        BankServicePeer bank_service_peer = new BankServicePeer(replica);
         IBankServicePeer bank_service_peer_stub = (IBankServicePeer)UnicastRemoteObject.exportObject(bank_service_peer, 0);
 
         Registry localRegistry = getRmiRegistry(port);
