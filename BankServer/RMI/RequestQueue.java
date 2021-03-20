@@ -194,6 +194,10 @@ public class RequestQueue {
 
     private final PriorityQueue<Request> _queue = new PriorityQueue<Request>();
 
+    public synchronized void enqueue(Request request) {
+        _queue.add(request);
+    }
+
     public Response execute(Request request) throws InterruptedException, IOException {
         Request front = _queue.peek();
         if (front != null) {
@@ -224,10 +228,6 @@ public class RequestQueue {
             next_request.notify();
 
         return matching_response;
-    }
-
-    public synchronized void enqueue(Request request) {
-        _queue.add(request);
     }
 
     private static RequestQueue _instance;

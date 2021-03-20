@@ -1,5 +1,6 @@
 package BankServer.RMI;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -9,13 +10,15 @@ public class BankServerReplica {
     private final String _hostname;
     private final int _serverId;
     private final int _rmiRegistryPort;
-    private IBankServicePeer _bank_service_peer;
+
+    private IBankServicePeer _peer;
 
     BankServerReplica(String hostname, int serverId, int rmiRegistryPort) {
         _hostname = hostname;
         _serverId = serverId;
         _rmiRegistryPort = rmiRegistryPort;
-        _bank_service_peer = null;
+
+        _peer = null;
     }
 
     public String getHostname() { return _hostname; }
@@ -24,14 +27,20 @@ public class BankServerReplica {
 
     public int getRmiRegistryPort() { return _rmiRegistryPort; }
 
-    public IBankServicePeer getBankServicePeerInterface() throws NotBoundException, MalformedURLException, RemoteException {
-        if(_bank_service_peer == null)
-            _bank_service_peer = initializeBankServicePeerInterface();
-        return _bank_service_peer;
+    public int receiveRequest(RequestQueue.Request request) throws NotBoundException, IOException, InterruptedException {
+        initializeBankServicePeerInterface();
+        return request.sendToPeer(_peer);
     }
 
-    public IBankServicePeer initializeBankServicePeerInterface() throws NotBoundException, MalformedURLException, RemoteException {
-        final String bank_service_peer_name = "//" + _hostname + ":" + _rmiRegistryPort + "/" + ServiceNames.BANK_SERVICE_PEER;
-        return (IBankServicePeer) Naming.lookup(bank_service_peer_name);
+    public void executeRequest(int timestamp, int pId) throws NotBoundException, IOException, InterruptedException {
+        initializeBankServicePeerInterface();
+        _peer.execute(timestamp, pId);
+    }
+
+    private void initializeBankServicePeerInterface() throws NotBoundException, MalformedURLException, RemoteException {
+        if(_peer == null) {
+            final String bank_service_peer_name = "//" + getHostname() + ":" + getRmiRegistryPort() + "/" + ServiceNames.BANK_SERVICE_PEER;
+            _peer = (IBankServicePeer) Naming.lookup(bank_service_peer_name);
+        }
     }
 }

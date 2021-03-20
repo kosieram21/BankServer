@@ -3,9 +3,7 @@ package BankServer.RMI;
 import BankServer.Status;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.List;
 
 public class BankService implements IBankService {
@@ -59,22 +57,26 @@ public class BankService implements IBankService {
     }
 
     private RequestQueue.Response executeRequest(RequestQueue.Request request)
-            throws IOException, NotBoundException, MalformedURLException, InterruptedException
+            throws IOException, NotBoundException, InterruptedException
     {
         _request_queue.enqueue(request);
-        multicast(request::sendToPeer);
+        multicast(request);
         RequestQueue.Response response = _request_queue.execute(request);
-        multicast(peer -> peer.execute(request.getTimestamp(), request.getProcessId()));
+        multicast(request.getTimestamp(), request.getProcessId());
         return response;
     }
 
-    private void multicast(ThrowingConsumer<IBankServicePeer> sendMessage)
-            throws RemoteException, NotBoundException, MalformedURLException
-    {
-        for (BankServerReplica replica : _peer_servers)
-        {
-            IBankServicePeer peer = replica.getBankServicePeerInterface();
-            sendMessage.accept(peer);
+    private void multicast(RequestQueue.Request request) throws InterruptedException, IOException, NotBoundException {
+        int max_timestamp = 0;
+        for (BankServerReplica peer : _peer_servers) {
+            int timestamp = peer.receiveRequest(request);
+            max_timestamp = Math.max(max_timestamp, timestamp);
         }
+        _clock.merge(max_timestamp);
+    }
+
+    private void multicast(int timestamp, int pId) throws InterruptedException, IOException, NotBoundException {
+        for (BankServerReplica peer : _peer_servers)
+            peer.executeRequest(timestamp, pId);
     }
 }
