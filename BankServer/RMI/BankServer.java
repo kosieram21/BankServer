@@ -37,7 +37,7 @@ public class BankServer {
                 return replica;
         }
 
-        throw new Exception("Server replica of with id: " + String.valueOf(pId) + " not found in config.");
+        throw new Exception("Server replica with id: " + String.valueOf(pId) + " not found in config.");
     }
 
     private static Registry getRmiRegistry(int port) throws RemoteException {
@@ -55,20 +55,20 @@ public class BankServer {
     public static void main(String[] args) throws Exception {
         if (args.length != 2) throw new RuntimeException("Syntax: tcp.BankServer port-number");
         final int pId = Integer.parseInt(args[0]);
-        final List<BankServerReplica> replicas = readConfigFile(args[1]);
+        final List<BankServerReplica> peer_servers = readConfigFile(args[1]);
 
-        final BankServerReplica local_replica = getReplica(pId, replicas);
-        replicas.remove(local_replica);
-        final int port = local_replica.getRmiRegistryPort();
+        final BankServerReplica local_server = getReplica(pId, peer_servers);
+        peer_servers.remove(local_server);
 
-        BankService bank_service = new BankService(local_replica, replicas);
+        BankService bank_service = new BankService(local_server, peer_servers);
         IBankService bank_service_stub = (IBankService)UnicastRemoteObject.exportObject(bank_service, 0);
 
-        BankServicePeer bank_service_peer = new BankServicePeer(local_replica);
+        BankServicePeer bank_service_peer = new BankServicePeer(local_server);
         IBankServicePeer bank_service_peer_stub = (IBankServicePeer)UnicastRemoteObject.exportObject(bank_service_peer, 0);
 
-        Registry localRegistry = getRmiRegistry(port);
-        localRegistry.bind(ServiceNames.BANK_SERVICE_RMI, bank_service_stub);
-        localRegistry.bind(ServiceNames.BANK_SERVICE_PEER, bank_service_peer_stub);
+        final int port = local_server.getRmiRegistryPort();
+        Registry local_registry = getRmiRegistry(port);
+        local_registry.bind(ServiceNames.BANK_SERVICE_RMI, bank_service_stub);
+        local_registry.bind(ServiceNames.BANK_SERVICE_PEER, bank_service_peer_stub);
     }
 }

@@ -64,16 +64,16 @@ public class RequestQueue {
 
     static abstract class Request implements Comparable<Request> {
         private final int _timestamp;
-        private final int _processId;
+        private final int _process_id;
 
-        Request(int timestamp, int processId) {
+        Request(int timestamp, int process_id) {
             _timestamp = timestamp;
-            _processId = processId;
+            _process_id = process_id;
         }
 
         public int getTimestamp() { return _timestamp; }
 
-        public int getProcessId() { return _processId; }
+        public int getProcessId() { return _process_id; }
 
         @Override
         public int compareTo(Request o) {
@@ -88,8 +88,8 @@ public class RequestQueue {
     }
 
     static class CreateAccountRequest extends Request {
-        CreateAccountRequest(int timestamp, int processId) throws IOException {
-            super(timestamp, processId);
+        CreateAccountRequest(int timestamp, int process_id) {
+            super(timestamp, process_id);
         }
 
         CreateAccountResponse execute() throws IOException {
@@ -107,8 +107,8 @@ public class RequestQueue {
         private final int _uuid;
         private final int _amount;
 
-        DepositRequest(int timestamp, int processId, int uuid, int amount) throws IOException {
-            super(timestamp, processId);
+        DepositRequest(int timestamp, int process_id, int uuid, int amount) {
+            super(timestamp, process_id);
             _uuid = uuid;
             _amount = amount;
         }
@@ -135,8 +135,8 @@ public class RequestQueue {
     static class GetBalanceRequest extends Request {
         private final int _uuid;
 
-        GetBalanceRequest(int timestamp, int processId, int uuid) throws IOException {
-            super(timestamp, processId);
+        GetBalanceRequest(int timestamp, int process_id, int uuid) {
+            super(timestamp, process_id);
             _uuid = uuid;
         }
 
@@ -160,10 +160,10 @@ public class RequestQueue {
         private final int _targetUuid;
         private final int _amount;
 
-        TransferRequest(int timestamp, int processId, int sourceUuid, int targetUuid, int amount) throws IOException {
-            super(timestamp, processId);
-            _sourceUuid = sourceUuid;
-            _targetUuid = targetUuid;
+        TransferRequest(int timestamp, int process_id, int source_uuid, int target_uuid, int amount) {
+            super(timestamp, process_id);
+            _sourceUuid = source_uuid;
+            _targetUuid = target_uuid;
             _amount = amount;
         }
 

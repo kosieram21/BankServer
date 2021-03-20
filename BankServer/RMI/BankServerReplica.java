@@ -8,24 +8,24 @@ import java.rmi.RemoteException;
 
 public class BankServerReplica {
     private final String _hostname;
-    private final int _serverId;
-    private final int _rmiRegistryPort;
+    private final int _server_id;
+    private final int _rmi_registry_port;
 
     private IBankServicePeer _peer;
 
-    BankServerReplica(String hostname, int serverId, int rmiRegistryPort) {
+    BankServerReplica(String hostname, int server_id, int rmi_registry_port) {
         _hostname = hostname;
-        _serverId = serverId;
-        _rmiRegistryPort = rmiRegistryPort;
+        _server_id = server_id;
+        _rmi_registry_port = rmi_registry_port;
 
         _peer = null;
     }
 
     public String getHostname() { return _hostname; }
 
-    public int getServerId() { return _serverId; }
+    public int getServerId() { return _server_id; }
 
-    public int getRmiRegistryPort() { return _rmiRegistryPort; }
+    public int getRmiRegistryPort() { return _rmi_registry_port; }
 
     public int receiveRequest(RequestQueue.Request request) throws NotBoundException, IOException, InterruptedException {
         initializeBankServicePeerInterface();
