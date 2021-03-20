@@ -15,8 +15,8 @@ public class LamportClock {
         _value++;
     }
 
-    public synchronized void merge(LamportClock other) {
-        _value = Math.max(getValue(), other.getValue());
+    public synchronized void merge(int other) {
+        _value = Math.max(getValue(), other);
     }
 
     private static LamportClock _instance;

@@ -10,7 +10,6 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class RequestQueue {
-
     // region Response Events
     static abstract class RequestProcessedEvent extends EventObject {
         private final int _timestamp;
@@ -199,6 +198,14 @@ public class RequestQueue {
     RequestQueue() {
         _queue = new PriorityQueue<Request>();
         _eventListeners = new EventListenerList();
+    }
+
+    public RequestProcessedEvent getResponse(Request request) throws InterruptedException {
+        Request front = _queue.peek();
+        if(front.getTimestamp() != request.getTimestamp() && front.getProcessId() != request.getProcessId()) {
+            request.wait();
+        }
+        return request.execute();
     }
 
     public void processRequests() throws InterruptedException {

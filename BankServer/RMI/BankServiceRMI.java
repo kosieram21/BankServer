@@ -59,8 +59,10 @@ public class BankServiceRMI implements IBankServiceRMI, IRequestProcessedListene
     @Override
     public int createAccount() throws RemoteException, IOException, InterruptedException, NotBoundException {
         _clock.advance();
-        _create_account_response.setTimestamp(_clock.getValue());
-        _request_queue.enqueue(new RequestQueue.CreateAccountRequest(_clock.getValue(), _local_server.getServerId()));
+        //_create_account_response.setTimestamp(_clock.getValue());
+
+        RequestQueue.CreateAccountRequest request = new RequestQueue.CreateAccountRequest(_clock.getValue(), _local_server.getServerId());
+        _request_queue.enqueue(request);
 
         // multicast to peer servers
         for (BankServerReplica replica : _peer_servers) {
