@@ -175,58 +175,22 @@ public class RequestQueue {
     // endregion
 
     private final PriorityQueue<Request> _queue;
-    private final EventListenerList _eventListeners;
 
     RequestQueue() {
         _queue = new PriorityQueue<Request>();
-        _eventListeners = new EventListenerList();
     }
 
     public Response getResponse(Request request) throws InterruptedException {
         Request front = _queue.peek();
-        if(front.getTimestamp() != request.getTimestamp() && front.getProcessId() != request.getProcessId()) {
+        if(request.compareTo(front) != 0)
             request.wait();
-        }
-        return request.execute();
-    }
 
-    public void processRequests() throws InterruptedException {
-        // This method should be running in a background thread to process
-        // request in the queue according to lamport's method This method should also
-        // fire the event processed event to alert the server's client interface of the
-        // proper response to send back to the client. An optimization that could be made
-        // is to only have the background thread run when there are events in the queue.
-
-        Request request = _queue.poll();
-        RequestProcessedEvent event = request.execute();
-
-        raiseRequestProcessedEvent(event);
+        front = _queue.poll();
+        return front.execute();
     }
 
     public synchronized void enqueue(Request request) {
         _queue.add(request);
-    }
-
-    public void addRequestProcessedListener(IRequestProcessedListener listener) {
-        _eventListeners.add(IRequestProcessedListener.class, listener);
-    }
-
-    public void removeEventProcessedListener(IRequestProcessedListener listener) {
-        _eventListeners.remove(IRequestProcessedListener.class, listener);
-    }
-
-    private void raiseRequestProcessedEvent(RequestQueue.RequestProcessedEvent event) throws InterruptedException {
-        IRequestProcessedListener[] listeners = _eventListeners.getListeners(IRequestProcessedListener.class);
-        for(IRequestProcessedListener listener : listeners) {
-            if (event instanceof CreateAccountProcessedEvent)
-                listener.createAccountProcessed((CreateAccountProcessedEvent) event);
-            else if (event instanceof DepositProcessedEvent)
-                listener.depositProcessed((DepositProcessedEvent) event);
-            else if (event instanceof GetBalanceProcessedEvent)
-                listener.getBalanceProcessed((GetBalanceProcessedEvent) event);
-            else if (event instanceof TransferProcessedEvent)
-                listener.transferProcessed((TransferProcessedEvent) event);
-        }
     }
 
     private static RequestQueue _instance;

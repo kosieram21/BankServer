@@ -1,7 +1,5 @@
 package BankServer.RMI;
 
-import BankServer.Bank;
-
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.Naming;
@@ -66,7 +64,9 @@ public class BankServerRMI {
 
         BankServiceRMI bank_service = new BankServiceRMI(replica, replicas);
         IBankServiceRMI bank_service_stub = (IBankServiceRMI)UnicastRemoteObject.exportObject(bank_service, 0);
-        IBankServicePeer bank_service_peer_stub = null;
+
+        BankServicePeer bank_service_peer = new BankServicePeer();
+        IBankServicePeer bank_service_peer_stub = (IBankServicePeer)UnicastRemoteObject.exportObject(bank_service_peer, 0);
 
         Registry localRegistry = getRmiRegistry(port);
         localRegistry.bind(ServiceNames.BANK_SERVICE_RMI, bank_service_stub);
