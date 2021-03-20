@@ -16,17 +16,11 @@ public class BankServerReplica {
         _rmiRegistryPort = rmiRegistryPort;
     }
 
-    public String getHostname() {
-        return _hostname;
-    }
+    public String getHostname() { return _hostname; }
 
-    public int getServerId() {
-        return _serverId;
-    }
+    public int getServerId() { return _serverId; }
 
-    public int getRmiRegistryPort() {
-        return _rmiRegistryPort;
-    }
+    public int getRmiRegistryPort() { return _rmiRegistryPort; }
 
     public IBankServicePeer getBankServicePeerInterface() throws NotBoundException, MalformedURLException, RemoteException {
         final String bank_service_peer_name = "//" + _hostname + ":" + _rmiRegistryPort + "/" + ServiceNames.BANK_SERVICE_PEER;

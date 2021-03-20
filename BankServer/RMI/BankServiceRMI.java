@@ -68,7 +68,7 @@ public class BankServiceRMI implements IBankServiceRMI, IRequestProcessedListene
     @Override
     public void createAccountProcessed(RequestQueue.CreateAccountProcessedEvent event) throws InterruptedException {
         if(event.getTimestamp() == _create_account_response.getTimestamp() &&
-                event.getProcessId() == _local_server.getServerId()) {
+           event.getProcessId() == _local_server.getServerId()) {
             _create_account_response.setValue(event.getUuid());
             _create_account_response.notify();
         }
