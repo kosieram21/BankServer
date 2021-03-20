@@ -32,7 +32,6 @@ public class BankServerReplica {
 
     public IBankServicePeer initializeBankServicePeerInterface() throws NotBoundException, MalformedURLException, RemoteException {
         final String bank_service_peer_name = "//" + _hostname + ":" + _rmiRegistryPort + "/" + ServiceNames.BANK_SERVICE_PEER;
-        IBankServicePeer bank_service_peer = (IBankServicePeer) Naming.lookup(bank_service_peer_name);
-        return bank_service_peer;
+        return (IBankServicePeer) Naming.lookup(bank_service_peer_name);
     }
 }

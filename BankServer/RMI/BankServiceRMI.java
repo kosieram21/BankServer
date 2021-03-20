@@ -15,8 +15,7 @@ public class BankServiceRMI implements IBankServiceRMI {
     private final BankServerReplica _local_server;
     private final List<BankServerReplica> _peer_servers;
 
-    public BankServiceRMI (BankServerReplica local_server, List<BankServerReplica> peer_servers)
-            throws RemoteException, IOException, InterruptedException {
+    public BankServiceRMI (BankServerReplica local_server, List<BankServerReplica> peer_servers) {
         super();
         _clock = LamportClock.getInstance();
         _request_queue = RequestQueue.getInstance();
@@ -26,7 +25,7 @@ public class BankServiceRMI implements IBankServiceRMI {
     }
 
     @Override
-    public int createAccount() throws RemoteException, IOException, InterruptedException, NotBoundException {
+    public int createAccount() throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
         RequestQueue.CreateAccountRequest request = new RequestQueue.CreateAccountRequest(timestamp, _local_server.getServerId());
         RequestQueue.CreateAccountResponse response = (RequestQueue.CreateAccountResponse)executeRequest(request);
@@ -34,7 +33,7 @@ public class BankServiceRMI implements IBankServiceRMI {
     }
 
     @Override
-    public Status deposit(int uuid, int amount) throws RemoteException, IOException, InterruptedException, NotBoundException {
+    public Status deposit(int uuid, int amount) throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
         RequestQueue.DepositRequest request = new RequestQueue.DepositRequest(timestamp, _local_server.getServerId(), uuid, amount);
         RequestQueue.DepositResponse response = (RequestQueue.DepositResponse)executeRequest(request);
