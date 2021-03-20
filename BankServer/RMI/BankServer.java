@@ -2,7 +2,6 @@ package BankServer.RMI;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.rmi.Naming;
 import java.rmi.registry.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.List;
 
-public class BankServerRMI {
+public class BankServer {
     private static List<BankServerReplica> readConfigFile(String filepath) throws FileNotFoundException {
         File file = new File(filepath);
         Scanner scanner = new Scanner(file);
@@ -62,8 +61,8 @@ public class BankServerRMI {
         replicas.remove(replica);
         final int port = replica.getRmiRegistryPort();
 
-        BankServiceRMI bank_service = new BankServiceRMI(replica, replicas);
-        IBankServiceRMI bank_service_stub = (IBankServiceRMI)UnicastRemoteObject.exportObject(bank_service, 0);
+        BankService bank_service = new BankService(replica, replicas);
+        IBankService bank_service_stub = (IBankService)UnicastRemoteObject.exportObject(bank_service, 0);
 
         BankServicePeer bank_service_peer = new BankServicePeer(replica);
         IBankServicePeer bank_service_peer_stub = (IBankServicePeer)UnicastRemoteObject.exportObject(bank_service_peer, 0);

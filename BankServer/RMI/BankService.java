@@ -8,14 +8,14 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.List;
 
-public class BankServiceRMI implements IBankServiceRMI {
+public class BankService implements IBankService {
     private  final LamportClock _clock;
     private final RequestQueue _request_queue;
 
     private final BankServerReplica _local_server;
     private final List<BankServerReplica> _peer_servers;
 
-    public BankServiceRMI (BankServerReplica local_server, List<BankServerReplica> peer_servers) {
+    public BankService(BankServerReplica local_server, List<BankServerReplica> peer_servers) {
         super();
         _clock = LamportClock.getInstance();
         _request_queue = RequestQueue.getInstance();
@@ -59,11 +59,11 @@ public class BankServiceRMI implements IBankServiceRMI {
     }
 
     private RequestQueue.Response executeRequest(RequestQueue.Request request)
-            throws RemoteException, NotBoundException, MalformedURLException, InterruptedException
+            throws IOException, NotBoundException, MalformedURLException, InterruptedException
     {
         _request_queue.enqueue(request);
         multicast(request::sendToPeer);
-        RequestQueue.Response response = _request_queue.getResponse(request);
+        RequestQueue.Response response = _request_queue.execute(request);
         multicast(peer -> peer.execute(request.getTimestamp(), request.getProcessId()));
         return response;
     }

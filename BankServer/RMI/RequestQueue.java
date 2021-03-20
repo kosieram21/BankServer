@@ -3,10 +3,7 @@ package BankServer.RMI;
 import BankServer.Bank;
 import BankServer.Status;
 
-import javax.swing.event.EventListenerList;
 import java.io.IOException;
-import java.util.EventObject;
-import java.util.Iterator;
 import java.util.PriorityQueue;
 
 public class RequestQueue {
@@ -68,12 +65,10 @@ public class RequestQueue {
     static abstract class Request implements Comparable<Request> {
         private final int _timestamp;
         private final int _processId;
-        protected final Bank _bank;
 
-        Request(int timestamp, int processId) throws IOException {
+        Request(int timestamp, int processId) {
             _timestamp = timestamp;
             _processId = processId;
-            _bank = Bank.getInstance();
         }
 
         public int getTimestamp() { return _timestamp; }
@@ -82,12 +77,12 @@ public class RequestQueue {
 
         @Override
         public int compareTo(Request o) {
-            return Integer.compare(_timestamp, o._timestamp) == 0 ?
-                    Integer.compare(_processId, o._processId) :
-                    Integer.compare(_timestamp, o._timestamp);
+            return getTimestamp() == o.getTimestamp() ?
+                    Integer.compare(getProcessId(), o.getProcessId()) :
+                    Integer.compare(getTimestamp(), o.getTimestamp());
         }
 
-        abstract Response execute();
+        abstract Response execute() throws IOException;
 
         abstract int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException;
     }
@@ -97,8 +92,9 @@ public class RequestQueue {
             super(timestamp, processId);
         }
 
-        CreateAccountResponse execute() {
-            int uuid = _bank.createAccount();
+        CreateAccountResponse execute() throws IOException {
+            Bank bank = Bank.getInstance();
+            int uuid = bank.createAccount();
             return new CreateAccountResponse(uuid);
         }
 
@@ -125,8 +121,9 @@ public class RequestQueue {
             return _amount;
         }
 
-        DepositResponse execute() {
-            Status status = _bank.deposit(_uuid, _amount);
+        DepositResponse execute() throws IOException {
+            Bank bank = Bank.getInstance();
+            Status status = bank.deposit(_uuid, _amount);
             return new DepositResponse(status);
         }
 
@@ -147,8 +144,9 @@ public class RequestQueue {
             return _uuid;
         }
 
-        GetBalanceResponse execute() {
-            int balance = _bank.getBalance(_uuid);
+        GetBalanceResponse execute() throws IOException {
+            Bank bank = Bank.getInstance();
+            int balance = bank.getBalance(_uuid);
             return new GetBalanceResponse(balance);
         }
 
@@ -181,8 +179,9 @@ public class RequestQueue {
             return _amount;
         }
 
-        TransferResponse execute() {
-            Status status = _bank.transfer(_sourceUuid, _targetUuid, _amount);
+        TransferResponse execute() throws IOException {
+            Bank bank = Bank.getInstance();
+            Status status = bank.transfer(_sourceUuid, _targetUuid, _amount);
             return new TransferResponse(status);
         }
 
@@ -195,7 +194,7 @@ public class RequestQueue {
 
     private final PriorityQueue<Request> _queue = new PriorityQueue<Request>();
 
-    public Response getResponse(Request request) throws InterruptedException {
+    public Response execute(Request request) throws InterruptedException, IOException {
         Request front = _queue.peek();
         if (front != null) {
             if (request.compareTo(front) != 0)
@@ -207,7 +206,7 @@ public class RequestQueue {
         else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
-    public synchronized Response getResponseNow(int timestamp, int pId, int local_pId) throws NullPointerException {
+    public synchronized Response executeImmediately(int timestamp, int pId, int local_pId) throws NullPointerException, IOException {
         Request matching_request = null;
         for (Request request : _queue) {
             if (request.getTimestamp() == timestamp && request.getProcessId() == pId) {

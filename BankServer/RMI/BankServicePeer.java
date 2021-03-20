@@ -44,7 +44,7 @@ public class BankServicePeer implements IBankServicePeer {
     }
 
     @Override
-    public void execute(int timestamp, int pId) throws RemoteException {
-        _request_queue.getResponseNow(timestamp, pId, _local_server.getServerId());
+    public void execute(int timestamp, int pId) throws IOException {
+        _request_queue.executeImmediately(timestamp, pId, _local_server.getServerId());
     }
 }

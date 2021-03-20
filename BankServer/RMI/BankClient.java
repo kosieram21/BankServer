@@ -1,24 +1,19 @@
 package BankServer.RMI;
 
 import BankServer.Status;
-import BankServer.TCP.BankClient;
-import BankServer.TCP.BankStub;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.Random;
 
-public class BankClientRMI {
+public class BankClient {
     static class WorkerThread extends Thread {
-        private final IBankServiceRMI _bank_service;
+        private final IBankService _bank_service;
         private final int[] _uuids;
         private final int _iterations;
 
-        WorkerThread(IBankServiceRMI bank_service, int[] uuids, int iterations) throws IOException {
+        WorkerThread(IBankService bank_service, int[] uuids, int iterations) throws IOException {
             _bank_service = bank_service;
             _uuids = uuids;
             _iterations = iterations;
@@ -50,7 +45,7 @@ public class BankClientRMI {
         final int iteration_count = Integer.parseInt(args[3]);
         final String bank_service_name = "//" + host + ":" + port + "/" + ServiceNames.BANK_SERVICE_RMI;
 
-        IBankServiceRMI bank_service = (IBankServiceRMI) Naming.lookup(bank_service_name);
+        IBankService bank_service = (IBankService) Naming.lookup(bank_service_name);
 
         final int num_accounts = 100;
         final int base_amount = 100;
@@ -66,9 +61,9 @@ public class BankClientRMI {
             sum = sum + bank_service.getBalance(uuids[i]);
         System.out.println(sum);
 
-        BankClientRMI.WorkerThread[] threads = new BankClientRMI.WorkerThread[thread_count];
+        BankClient.WorkerThread[] threads = new BankClient.WorkerThread[thread_count];
         for(int i = 0; i < thread_count; i++) {
-            threads[i] = new BankClientRMI.WorkerThread(bank_service, uuids, iteration_count);
+            threads[i] = new BankClient.WorkerThread(bank_service, uuids, iteration_count);
             threads[i].run();
         }
 
