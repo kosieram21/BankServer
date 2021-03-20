@@ -6,10 +6,11 @@ import BankServer.Status;
 import javax.swing.event.EventListenerList;
 import java.io.IOException;
 import java.util.EventObject;
+import java.util.Iterator;
 import java.util.PriorityQueue;
 
 public class RequestQueue {
-    // region Response
+    // region Server-to-Client Response
     static abstract class Response { }
 
     static class CreateAccountResponse extends Response {
@@ -174,19 +175,37 @@ public class RequestQueue {
 
     // endregion
 
-    private final PriorityQueue<Request> _queue;
-
-    RequestQueue() {
-        _queue = new PriorityQueue<Request>();
-    }
+    private final PriorityQueue<Request> _queue = new PriorityQueue<Request>();
 
     public Response getResponse(Request request) throws InterruptedException {
         Request front = _queue.peek();
-        if(request.compareTo(front) != 0)
-            request.wait();
+        if (front != null) {
+            if (request.compareTo(front) != 0)
+                request.wait();
 
-        front = _queue.poll();
-        return front.execute();
+            front = _queue.poll();
+            return front.execute();
+        }
+        else throw new NullPointerException("Response lost and thus cannot be returned");
+    }
+
+    public synchronized Request remove(int timestamp, int pId) throws NullPointerException {
+        Request matching_request = null;
+        for (Request request : _queue) {
+            if (request.getTimestamp() == timestamp && request.getProcessId() == pId) {
+                matching_request = request;
+                break;
+            }
+        }
+
+        if (matching_request == null) throw new NullPointerException("No matching request to remove");
+        _queue.remove(matching_request);
+
+        Request next_request = _queue.peek();
+        if (next_request != null && next_request.getProcessId() == pId)
+            next_request.notify();
+
+        return matching_request;
     }
 
     public synchronized void enqueue(Request request) {
