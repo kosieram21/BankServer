@@ -1,9 +1,5 @@
 package BankServer.RMI;
 
-import BankServer.Bank;
-
-import java.io.IOException;
-
 public class LamportClock {
     private int _value = 0;
 
@@ -11,12 +7,13 @@ public class LamportClock {
         return _value;
     }
 
-    public synchronized void advance() {
-        _value++;
+    public synchronized int advance() {
+        return _value++;
     }
 
-    public synchronized void merge(int other) {
+    public synchronized int merge(int other) {
         _value = Math.max(getValue(), other);
+        return advance();
     }
 
     private static LamportClock _instance;

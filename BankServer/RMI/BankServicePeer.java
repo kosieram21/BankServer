@@ -9,34 +9,28 @@ public class BankServicePeer implements IBankServicePeer{
 
     @Override
     public int createAccount(int timestamp, int pId) throws RemoteException, IOException, InterruptedException {
-        _clock.merge(timestamp);
-        _clock.advance();
-        _request_queue.enqueue(new RequestQueue.CreateAccountRequest(timestamp, pId));
-        return _clock.getValue();
+        return enqueueRequest(new RequestQueue.CreateAccountRequest(timestamp, pId));
     }
 
     @Override
     public int deposit(int timestamp, int pId, int uuid, int amount) throws RemoteException, IOException, InterruptedException {
-        _clock.merge(timestamp);
-        _clock.advance();
-        _request_queue.enqueue(new RequestQueue.DepositRequest(timestamp, pId, uuid, amount));
-        return _clock.getValue();
+        return enqueueRequest(new RequestQueue.DepositRequest(timestamp, pId, uuid, amount));
     }
 
     @Override
     public int getBalance(int timestamp, int pId, int uuid) throws RemoteException, IOException, InterruptedException {
-        _clock.merge(timestamp);
-        _clock.advance();
-        _request_queue.enqueue(new RequestQueue.GetBalanceRequest(timestamp, pId, uuid));
-        return _clock.getValue();
+        return enqueueRequest(new RequestQueue.GetBalanceRequest(timestamp, pId, uuid));
     }
 
     @Override
     public int transfer(int timestamp, int pId, int source_uuid, int target_uuid, int amount) throws RemoteException, IOException, InterruptedException {
-        _clock.merge(timestamp);
-        _clock.advance();
-        _request_queue.enqueue(new RequestQueue.TransferRequest(timestamp, pId, source_uuid, target_uuid, amount));
-        return _clock.getValue();
+        return enqueueRequest(new RequestQueue.TransferRequest(timestamp, pId, source_uuid, target_uuid, amount));
+    }
+
+    private int enqueueRequest(RequestQueue.Request request) {
+        int timestamp = _clock.merge(request.getTimestamp());
+        _request_queue.enqueue(request);
+        return timestamp;
     }
 
     @Override
