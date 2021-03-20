@@ -89,7 +89,7 @@ public class RequestQueue {
 
         abstract Response execute();
 
-        abstract int sendToPeer(IBankServicePeer peer);
+        abstract int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException;
     }
 
     static class CreateAccountRequest extends Request {
@@ -102,8 +102,8 @@ public class RequestQueue {
             return new CreateAccountResponse(uuid);
         }
 
-        int sendToPeer(IBankServicePeer peer) {
-            peer.cr
+        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+            return peer.createAccount(getTimestamp(), getProcessId());
         }
     }
 
@@ -129,6 +129,10 @@ public class RequestQueue {
             Status status = _bank.deposit(_uuid, _amount);
             return new DepositResponse(status);
         }
+
+        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+            return peer.deposit(getTimestamp(), getProcessId(), getUuid(), getAmount());
+        }
     }
 
     static class GetBalanceRequest extends Request {
@@ -146,6 +150,10 @@ public class RequestQueue {
         GetBalanceResponse execute() {
             int balance = _bank.getBalance(_uuid);
             return new GetBalanceResponse(balance);
+        }
+
+        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+            return peer.getBalance(getTimestamp(), getProcessId(), getUuid());
         }
     }
 
@@ -176,6 +184,10 @@ public class RequestQueue {
         TransferResponse execute() {
             Status status = _bank.transfer(_sourceUuid, _targetUuid, _amount);
             return new TransferResponse(status);
+        }
+
+        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+            return peer.transfer(getTimestamp(), getProcessId(), getSourceUuid(), getTargetUuid(), getAmount());
         }
     }
 
