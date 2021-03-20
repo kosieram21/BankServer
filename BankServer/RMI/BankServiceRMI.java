@@ -3,6 +3,7 @@ package BankServer.RMI;
 import BankServer.Status;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.List;
 
@@ -56,11 +57,17 @@ public class BankServiceRMI implements IBankServiceRMI, IRequestProcessedListene
     }
 
     @Override
-    public int createAccount() throws RemoteException, IOException, InterruptedException {
+    public int createAccount() throws RemoteException, IOException, InterruptedException, NotBoundException {
         _clock.advance();
         _create_account_response.setTimestamp(_clock.getValue());
         _request_queue.enqueue(new RequestQueue.CreateAccountRequest(_clock.getValue(), _local_server.getServerId()));
-        // TODO: multicast to peer servers
+
+        // multicast to peer servers
+        for (BankServerReplica replica : _peer_servers) {
+            IBankServicePeer peer = replica.getBankServicePeerInterface();
+            peer.createAccount(_clock.getValue(), _local_server.getServerId());
+        }
+
         _create_account_response.wait();
         return _create_account_response.getValue();
     }
@@ -75,11 +82,17 @@ public class BankServiceRMI implements IBankServiceRMI, IRequestProcessedListene
     }
 
     @Override
-    public Status deposit(int uuid, int amount) throws RemoteException, IOException, InterruptedException {
+    public Status deposit(int uuid, int amount) throws RemoteException, IOException, InterruptedException, NotBoundException {
         _clock.advance();
         _deposit_response.setTimestamp(_clock.getValue());
         _request_queue.enqueue(new RequestQueue.DepositRequest(_clock.getValue(), _local_server.getServerId(), uuid, amount));
-        // TODO: multicast to peer servers
+
+        // multicast to peer servers
+        for (BankServerReplica replica : _peer_servers) {
+            IBankServicePeer peer = replica.getBankServicePeerInterface();
+            peer.deposit(_clock.getValue(), _local_server.getServerId(), uuid, amount);
+        }
+
         _deposit_response.wait();
         return _deposit_response.getValue();
     }
@@ -94,11 +107,17 @@ public class BankServiceRMI implements IBankServiceRMI, IRequestProcessedListene
     }
 
     @Override
-    public int getBalance(int uuid) throws RemoteException, IOException, InterruptedException {
+    public int getBalance(int uuid) throws RemoteException, IOException, InterruptedException, NotBoundException {
         _clock.advance();
         _get_balance_response.setTimestamp(_clock.getValue());
         _request_queue.enqueue(new RequestQueue.GetBalanceRequest(_clock.getValue(), _local_server.getServerId(), uuid));
-        // TODO: multicast to peer servers
+
+        // multicast to peer servers
+        for (BankServerReplica replica : _peer_servers) {
+            IBankServicePeer peer = replica.getBankServicePeerInterface();
+            peer.getBalance(_clock.getValue(), _local_server.getServerId(), uuid);
+        }
+
         _get_balance_response.wait();
         return _get_balance_response.getValue();
     }
@@ -113,11 +132,17 @@ public class BankServiceRMI implements IBankServiceRMI, IRequestProcessedListene
     }
 
     @Override
-    public Status transfer(int source_uuid, int target_uuid, int amount) throws RemoteException, IOException, InterruptedException {
+    public Status transfer(int source_uuid, int target_uuid, int amount) throws RemoteException, IOException, InterruptedException, NotBoundException {
         _clock.advance();
         _transfer_response.setTimestamp(_clock.getValue());
         _request_queue.enqueue(new RequestQueue.TransferRequest(_clock.getValue(), _local_server.getServerId(), source_uuid, target_uuid, amount));
-        // TODO: multicast to peer servers
+
+        // multicast to peer servers
+        for (BankServerReplica replica : _peer_servers) {
+            IBankServicePeer peer = replica.getBankServicePeerInterface();
+            peer.transfer(_clock.getValue(), _local_server.getServerId(), source_uuid, target_uuid, amount);
+        }
+
         _transfer_response.wait();
         return _transfer_response.getValue();
     }
