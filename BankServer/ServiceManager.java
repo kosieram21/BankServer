@@ -5,10 +5,7 @@ import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ServiceManager {
     public static final String BANK_SERVICE = "BankServer.BankService";
@@ -55,12 +52,12 @@ public class ServiceManager {
             unbindService(key);
     }
 
-    public <TService extends Remote> List<TService> getServices(ConfigFile config_file, String service_name)
+    public <TService extends Remote> HashMap<Integer, TService> getServices(ConfigFile config_file, String service_name)
             throws RemoteException, NotBoundException, MalformedURLException
     {
-        List<TService> services = new ArrayList<TService>();
+        HashMap<Integer, TService> services = new HashMap<Integer, TService>();
         for(ConfigFile.Entry entry : config_file)
-            services.add(getService(entry, service_name));
+            services.put(entry.getServerId(), getService(entry, service_name));
         return services;
     }
 

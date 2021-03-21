@@ -5,7 +5,9 @@ import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BankService implements IBankService {
@@ -20,7 +22,7 @@ public class BankService implements IBankService {
     private final int _num_clients;
     private final List<Integer> _halted_clients;
 
-    private List<IBankServicePeer> _peers;
+    private HashMap<Integer, IBankServicePeer> _peers;
 
     public BankService(int local_server_id, ConfigFile config_file, int num_clients) {
         super();
@@ -105,7 +107,8 @@ public class BankService implements IBankService {
             _peers = service_manager.getServices(_config_file, ServiceManager.BANK_SERVICE_PEER);
         }
 
-        for (IBankServicePeer peer : _peers)
-            send_message.accept(peer);
+        Set<Integer> keys = _peers.keySet();
+        for (Integer key : keys)
+            send_message.accept(_peers.get(key));
     }
 }
