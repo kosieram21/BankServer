@@ -45,7 +45,7 @@ public class BankServer {
         final ConfigFile.Entry local_server = config_file.getEntry(server_id);
         final int port = local_server.getRmiRegistryPort();
         Registry local_registry = getRmiRegistry(port);
-        local_registry.bind(ServiceNames.BANK_SERVICE_RMI, bank_service_stub);
+        local_registry.bind(ServiceNames.BANK_SERVICE, bank_service_stub);
         local_registry.bind(ServiceNames.BANK_SERVICE_PEER, bank_service_peer_stub);
     }
 }
