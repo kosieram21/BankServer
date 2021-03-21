@@ -1,4 +1,4 @@
-package BankServer.RMI;
+package BankServer;
 
 import java.io.IOException;
 
@@ -51,6 +51,6 @@ public class BankServicePeer implements IBankServicePeer {
 
     @Override
     public void halt() {
-        BankServer.shutdown();
+        Server.shutdown();
     }
 }

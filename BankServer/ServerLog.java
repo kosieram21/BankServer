@@ -1,4 +1,4 @@
-package BankServer.RMI;
+package BankServer;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;

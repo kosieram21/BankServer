@@ -1,4 +1,4 @@
-package BankServer.RMI;
+package BankServer;
 
 import java.util.function.Consumer;
 

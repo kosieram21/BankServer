@@ -1,4 +1,4 @@
-package BankServer.RMI;
+package BankServer;
 
 import java.net.MalformedURLException;
 import java.rmi.*;
@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceManager {
-    public static final String BANK_SERVICE = "BankServer.RMI.BankService";
-    public static final String BANK_SERVICE_PEER = "BankServer.RMI.BankServicePeer";
+    public static final String BANK_SERVICE = "BankServer.BankService";
+    public static final String BANK_SERVICE_PEER = "BankServer.BankServicePeer";
 
     public static <TService extends Remote> void bindService(Remote service, String service_name, int id, int port) throws RemoteException, AlreadyBoundException {
         TService service_stub = (TService) UnicastRemoteObject.exportObject(service, 0);

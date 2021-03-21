@@ -1,13 +1,11 @@
-package BankServer.RMI;
-
-import BankServer.Status;
+package BankServer;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.util.List;
 import java.util.Random;
 
-public class BankClient {
+public class Client {
     static class WorkerThread extends Thread {
         private final List<IBankService> _bank_services;
 
@@ -32,7 +30,7 @@ public class BankClient {
 
     public static void main(String[] args) throws Exception {
         // parse command line arguments
-        if (args.length != 3) throw new RuntimeException("Syntax: RMI.BankServer client-id thread-count config-file");
+        if (args.length != 3) throw new RuntimeException("Syntax: RMI.BankClient client-id thread-count config-file");
         final int client_id = Integer.parseInt(args[0]);
         final int thread_count = Integer.parseInt(args[1]);
         final ConfigFile config_file = ConfigFile.parse(args[2]);
@@ -42,11 +40,10 @@ public class BankClient {
 
         final List<IBankService> bank_services = ServiceManager.getServices(config_file, ServiceManager.BANK_SERVICE);
         bank_services.add(lowest);
-        lowest.declarePresence(client_id);
 
-        BankClient.WorkerThread[] threads = new BankClient.WorkerThread[thread_count];
+        Client.WorkerThread[] threads = new Client.WorkerThread[thread_count];
         for(int i = 0; i < thread_count; i++) {
-            threads[i] = new BankClient.WorkerThread(bank_services);
+            threads[i] = new Client.WorkerThread(bank_services);
             threads[i].run();
         }
 

@@ -1,4 +1,4 @@
-package BankServer.RMI;
+package BankServer;
 
 public class LamportClock {
     private int _value = 0;

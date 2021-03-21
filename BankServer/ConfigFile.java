@@ -1,4 +1,4 @@
-package BankServer.RMI;
+package BankServer;
 
 import java.io.File;
 import java.io.FileNotFoundException;

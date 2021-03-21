@@ -24,5 +24,5 @@ For **Part A** run the following commands in order:
 
 For **Part B** run the following commands in order:
 
-    java BankServer.RMI.BankServer <port>
-    java BankServer.RMI.BankClient <host> <port> <numThreads> <iterationCount>
+    java BankServer.Server <port>
+    java BankServer.Client <host> <port> <numThreads> <iterationCount>

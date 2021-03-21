@@ -1,7 +1,4 @@
-package BankServer.RMI;
-
-import BankServer.Bank;
-import BankServer.Status;
+package BankServer;
 
 import java.io.IOException;
 import java.util.PriorityQueue;

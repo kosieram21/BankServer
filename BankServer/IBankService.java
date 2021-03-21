@@ -1,11 +1,8 @@
-package BankServer.RMI;
-
-import BankServer.Status;
+package BankServer;
 
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 public interface IBankService extends Remote {
     int createAccount() throws IOException, InterruptedException, NotBoundException;
