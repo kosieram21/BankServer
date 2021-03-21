@@ -6,7 +6,7 @@ import BankServer.Status;
 import java.io.IOException;
 import java.util.PriorityQueue;
 
-public class RequestQueue {
+public class StateMachine {
     // region Server-to-Client Response
     static class Response { }
 
@@ -194,10 +194,10 @@ public class RequestQueue {
 
     private final PriorityQueue<Request> _queue = new PriorityQueue<Request>();
 
-    private static RequestQueue _instance;
-    public synchronized static RequestQueue getInstance() {
+    private static StateMachine _instance;
+    public synchronized static StateMachine getInstance() {
         if (_instance == null)
-            _instance = new RequestQueue();
+            _instance = new StateMachine();
         return _instance;
     }
 

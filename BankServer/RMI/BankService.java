@@ -13,46 +13,49 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BankService implements IBankService {
     private  final LamportClock _clock;
-    private final RequestQueue _request_queue;
+    private final StateMachine _state_machine;
 
     private final int _local_server_id;
     private final ConfigFile _config_file;
 
     private List<IBankServicePeer> _peers;
-    private List<Integer> _known_clients;
 
-    public BankService(int local_server_id, ConfigFile config_file) {
+    private final int _num_clients;
+    private final List<Integer> _halted_clients;
+
+    public BankService(int local_server_id, ConfigFile config_file, int num_clients) {
         super();
         _clock = LamportClock.getInstance();
-        _request_queue = RequestQueue.getInstance();
+        _state_machine = StateMachine.getInstance();
 
         _local_server_id = local_server_id;
         _config_file = config_file;
 
-        _known_clients = new ArrayList<Integer>();
+        _num_clients = num_clients;
+        _halted_clients = new ArrayList<Integer>(_num_clients);
     }
 
     @Override
     public int createAccount() throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
-        RequestQueue.CreateAccountRequest request = new RequestQueue.CreateAccountRequest(timestamp, _local_server_id);
-        RequestQueue.CreateAccountResponse response = (RequestQueue.CreateAccountResponse)executeRequest(request);
+        StateMachine.CreateAccountRequest request = new StateMachine.CreateAccountRequest(timestamp, _local_server_id);
+        StateMachine.CreateAccountResponse response = (StateMachine.CreateAccountResponse)executeRequest(request);
         return response.getUuid();
     }
 
     @Override
     public Status deposit(int uuid, int amount) throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
-        RequestQueue.DepositRequest request = new RequestQueue.DepositRequest(timestamp, _local_server_id, uuid, amount);
-        RequestQueue.DepositResponse response = (RequestQueue.DepositResponse)executeRequest(request);
+        StateMachine.DepositRequest request = new StateMachine.DepositRequest(timestamp, _local_server_id, uuid, amount);
+        StateMachine.DepositResponse response = (StateMachine.DepositResponse)executeRequest(request);
         return response.getStatus();
     }
 
     @Override
     public int getBalance(int uuid) throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
-        RequestQueue.GetBalanceRequest request = new RequestQueue.GetBalanceRequest(timestamp, _local_server_id, uuid);
-        RequestQueue.GetBalanceResponse response = (RequestQueue.GetBalanceResponse)executeRequest(request);
+        StateMachine.GetBalanceRequest request = new StateMachine.GetBalanceRequest(timestamp, _local_server_id, uuid);
+        StateMachine.GetBalanceResponse response = (StateMachine.GetBalanceResponse)executeRequest(request);
         return response.getBalance();
     }
 
@@ -61,32 +64,26 @@ public class BankService implements IBankService {
             throws IOException, InterruptedException, NotBoundException
     {
         int timestamp = _clock.advance();
-        RequestQueue.TransferRequest request = new RequestQueue.TransferRequest(timestamp, _local_server_id, source_uuid, target_uuid, amount);
-        RequestQueue.TransferResponse response = (RequestQueue.TransferResponse)executeRequest(request);
+        StateMachine.TransferRequest request = new StateMachine.TransferRequest(timestamp, _local_server_id, source_uuid, target_uuid, amount);
+        StateMachine.TransferResponse response = (StateMachine.TransferResponse)executeRequest(request);
         return response.getStatus();
     }
 
-    private RequestQueue.Response executeRequest(RequestQueue.Request request)
+    private StateMachine.Response executeRequest(StateMachine.Request request)
             throws IOException, NotBoundException, InterruptedException
     {
-        _request_queue.enqueue(request);
+        _state_machine.enqueue(request);
         multicast(request);
-        RequestQueue.Response response = _request_queue.execute(request);
+        StateMachine.Response response = _state_machine.execute(request);
         multicast(peer -> peer.execute(request.getTimestamp(), request.getServerId()));
         return response;
     }
 
     @Override
-    public void declarePresence(int client_id) throws RemoteException {
-        if(!_known_clients.contains(client_id))
-            _known_clients.add(client_id);
-    }
-
-    @Override
     public void halt(int client_id) throws IOException, NotBoundException {
-        if(_known_clients.contains(client_id))
-            _known_clients.remove(client_id);
-        if(_known_clients.isEmpty()) {
+        if(!_halted_clients.contains(client_id))
+            _halted_clients.add(client_id);
+        if(_halted_clients.size() == _num_clients) {
             multicast(peer -> peer.halt());
             Bank bank = Bank.getInstance();
             bank.halt();
@@ -94,7 +91,7 @@ public class BankService implements IBankService {
         }
     }
 
-    private void multicast(RequestQueue.Request request) throws IOException, NotBoundException {
+    private void multicast(StateMachine.Request request) throws IOException, NotBoundException {
         AtomicInteger max_timestamp = new AtomicInteger(0);
         multicast(peer -> {
             int timestamp = request.sendToPeer(peer);
