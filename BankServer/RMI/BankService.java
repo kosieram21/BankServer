@@ -61,6 +61,13 @@ public class BankService implements IBankService {
         return response.getStatus();
     }
 
+    @Override
+    public void halt() throws NotBoundException, InterruptedException, IOException {
+        int timestamp = _clock.advance();
+        RequestQueue.HaltRequest request = new RequestQueue.HaltRequest(timestamp, _local_server_id);
+        executeRequest(request);
+    }
+
     private RequestQueue.Response executeRequest(RequestQueue.Request request)
             throws IOException, NotBoundException, InterruptedException
     {

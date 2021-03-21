@@ -8,7 +8,7 @@ import java.util.PriorityQueue;
 
 public class RequestQueue {
     // region Server-to-Client Response
-    static abstract class Response { }
+    static class Response { }
 
     static class CreateAccountResponse extends Response {
         private final int _uuid;
@@ -187,6 +187,20 @@ public class RequestQueue {
 
         int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
             return peer.transfer(getTimestamp(), getServerId(), getSourceUuid(), getTargetUuid(), getAmount());
+        }
+    }
+
+    static class HaltRequest extends Request {
+        HaltRequest(int timestamp, int server_id) {
+            super(timestamp, server_id);
+        }
+
+        Response execute() throws IOException {
+            return new Response();
+        }
+
+        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+            return peer.halt(getTimestamp(), getServerId());
         }
     }
 
