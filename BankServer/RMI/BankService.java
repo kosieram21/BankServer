@@ -18,8 +18,7 @@ public class BankService implements IBankService {
     private final int _local_server_id;
     private final ConfigFile _config_file;
 
-    private final List<IBankServicePeer> _peers;
-    private boolean _peer_connections_initialized;
+    private List<IBankServicePeer> _peers;
 
     public BankService(int local_server_id, ConfigFile config_file) {
         super();
@@ -28,23 +27,6 @@ public class BankService implements IBankService {
 
         _local_server_id = local_server_id;
         _config_file = config_file;
-
-        _peers = new ArrayList<IBankServicePeer>();
-        _peer_connections_initialized = false;
-    }
-
-    private void initializePeerConnections() throws RemoteException, NotBoundException, MalformedURLException {
-        if(!_peer_connections_initialized) {
-            for(ConfigFile.Entry entry : _config_file)
-                if(entry.getServerId() != _local_server_id) initializePeerConnection(entry);
-            _peer_connections_initialized = true;
-        }
-    }
-
-    private void initializePeerConnection(ConfigFile.Entry entry) throws RemoteException, NotBoundException, MalformedURLException {
-        final String bank_service_peer_name = "//" + entry.getHostname() + ":" + entry.getRmiRegistryPort() + "/" + ServiceNames.BANK_SERVICE_PEER;
-        IBankServicePeer peer = (IBankServicePeer) Naming.lookup(bank_service_peer_name);
-        _peers.add(peer);
     }
 
     @Override
@@ -102,7 +84,7 @@ public class BankService implements IBankService {
 
     private void multicast(ThrowingConsumer<IBankServicePeer> send_message)
             throws RemoteException, NotBoundException, MalformedURLException {
-        initializePeerConnections();
+        if(_peers == null) _peers = ServiceManager.getServices(_config_file, ServiceManager.BANK_SERVICE_PEER);
         for (IBankServicePeer peer : _peers)
             send_message.accept(peer);
     }

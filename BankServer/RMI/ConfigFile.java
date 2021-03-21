@@ -59,6 +59,11 @@ public class ConfigFile implements Iterable<ConfigFile.Entry> {
         throw new Exception("Server with id: " + String.valueOf(server_id) + " not found in config.");
     }
 
+    public void removeEntry(int server_id) throws Exception {
+        Entry entry = getEntry(server_id);
+        _entries.remove(entry);
+    }
+
     @Override
     public Iterator<Entry> iterator() {
         return _entries.iterator();

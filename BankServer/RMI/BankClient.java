@@ -34,25 +34,14 @@ public class BankClient {
         }
     }
 
-    private static List<IBankService> initializeServerConnections(ConfigFile config_file) throws RemoteException, NotBoundException, MalformedURLException {
-        final List<IBankService> servers = new ArrayList<IBankService>();
-        for(ConfigFile.Entry entry : config_file) {
-            final String bank_service_name = "//" + entry.getHostname() + ":" + entry.getRmiRegistryPort() + "/" + ServiceNames.BANK_SERVICE;
-            IBankService server = (IBankService) Naming.lookup(bank_service_name);
-            servers.add(server);
-        }
-        return servers;
-    }
-
     public static void main(String[] args) throws Exception {
         // parse command line arguments
-        if (args.length != 4) throw new RuntimeException("hostname and port number as arguments");
-
+        if (args.length != 3) throw new RuntimeException("hostname and port number as arguments");
         final int client_id = Integer.parseInt(args[0]);
         final int thread_count = Integer.parseInt(args[1]);
         final ConfigFile config_file = ConfigFile.parse(args[2]);
 
-        final List<IBankService> bank_services = initializeServerConnections(config_file);
+        final List<IBankService> bank_services = ServiceManager.getServices(config_file, ServiceManager.BANK_SERVICE);
         BankClient.WorkerThread[] threads = new BankClient.WorkerThread[thread_count];
         for(int i = 0; i < thread_count; i++) {
             threads[i] = new BankClient.WorkerThread(bank_services);
