@@ -43,8 +43,8 @@ public class ServiceManager {
     {
         Remote service = _services.get(service_name);
         Registry registry = getRmiRegistry(_port);
+        UnicastRemoteObject.unexportObject(service, true);
         registry.unbind(service_name);
-        UnicastRemoteObject.unexportObject(service, false);
     }
 
     public void unbindAllServices()
