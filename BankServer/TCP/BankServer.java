@@ -1,6 +1,6 @@
 package BankServer.TCP;
 
-import BankServer.Bank;
+import BankServer.RMI.ServerLog;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -39,7 +39,7 @@ public class BankServer {
         if (args.length != 1) throw new RuntimeException("Syntax: tcp.BankServer port-number");
         int port = Integer.parseInt(args[0]);
 
-        Bank.getInstance().initializeLogger(0);
+        ServerLog.getInstance().initialize(0);
 
         System.out.println("Starting on port " + port);
         ServerSocket server = new ServerSocket(port);

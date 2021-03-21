@@ -63,13 +63,19 @@ public class StateMachine {
     // region Request Hierarchy
 
     static abstract class Request implements Comparable<Request> {
+        enum Source { Client, Server }
+
+        private final Source _request_source;
         private final int _timestamp;
         private final int _server_id;
 
-        Request(int timestamp, int server_id) {
+        Request(Source request_source, int timestamp, int server_id) {
+            _request_source = request_source;
             _timestamp = timestamp;
             _server_id = server_id;
         }
+
+        public Source getRequestSource() { return _request_source;}
 
         public int getTimestamp() { return _timestamp; }
 
@@ -82,23 +88,29 @@ public class StateMachine {
                     Integer.compare(getTimestamp(), o.getTimestamp());
         }
 
-        abstract Response execute();
+        public abstract Response execute();
 
-        abstract int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException;
+        public abstract int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException;
+
+        protected void log(String msg) {
+            ServerLog log = ServerLog.getInstance();
+            log.log(String.format("%d %s [%d,%d] %s", getServerId(), getRequestSource(), getTimestamp(), getServerId(), msg));
+        }
     }
 
     static class CreateAccountRequest extends Request {
-        CreateAccountRequest(int timestamp, int server_id) {
-            super(timestamp, server_id);
+        CreateAccountRequest(Source request_source, int timestamp, int server_id) {
+            super(request_source, timestamp, server_id);
         }
 
-        CreateAccountResponse execute() {
+        public CreateAccountResponse execute() {
             Bank bank = Bank.getInstance();
             int uuid = bank.createAccount();
+            log(String.format("createAccount() %d", uuid));
             return new CreateAccountResponse(uuid);
         }
 
-        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+        public int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
             return peer.createAccount(getTimestamp(), getServerId());
         }
     }
@@ -107,8 +119,8 @@ public class StateMachine {
         private final int _uuid;
         private final int _amount;
 
-        DepositRequest(int timestamp, int server_id, int uuid, int amount) {
-            super(timestamp, server_id);
+        DepositRequest(Source request_source, int timestamp, int server_id, int uuid, int amount) {
+            super(request_source, timestamp, server_id);
             _uuid = uuid;
             _amount = amount;
         }
@@ -121,13 +133,14 @@ public class StateMachine {
             return _amount;
         }
 
-        DepositResponse execute() {
+        public DepositResponse execute() {
             Bank bank = Bank.getInstance();
             Status status = bank.deposit(_uuid, _amount);
+            log(String.format("deposit(%d, %d) %s", getUuid(), getAmount(), status));
             return new DepositResponse(status);
         }
 
-        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+        public int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
             return peer.deposit(getTimestamp(), getServerId(), getUuid(), getAmount());
         }
     }
@@ -135,8 +148,8 @@ public class StateMachine {
     static class GetBalanceRequest extends Request {
         private final int _uuid;
 
-        GetBalanceRequest(int timestamp, int server_id, int uuid) {
-            super(timestamp, server_id);
+        GetBalanceRequest(Source request_source, int timestamp, int server_id, int uuid) {
+            super(request_source, timestamp, server_id);
             _uuid = uuid;
         }
 
@@ -144,13 +157,14 @@ public class StateMachine {
             return _uuid;
         }
 
-        GetBalanceResponse execute() {
+        public GetBalanceResponse execute() {
             Bank bank = Bank.getInstance();
             int balance = bank.getBalance(_uuid);
+            log(String.format("getBalance(%d) %d", getUuid(), balance));
             return new GetBalanceResponse(balance);
         }
 
-        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+        public int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
             return peer.getBalance(getTimestamp(), getServerId(), getUuid());
         }
     }
@@ -160,8 +174,8 @@ public class StateMachine {
         private final int _target_uuid;
         private final int _amount;
 
-        TransferRequest(int timestamp, int server_id, int source_uuid, int target_uuid, int amount) {
-            super(timestamp, server_id);
+        TransferRequest(Source request_source, int timestamp, int server_id, int source_uuid, int target_uuid, int amount) {
+            super(request_source, timestamp, server_id);
             _source_uuid = source_uuid;
             _target_uuid = target_uuid;
             _amount = amount;
@@ -179,13 +193,14 @@ public class StateMachine {
             return _amount;
         }
 
-        TransferResponse execute() {
+        public TransferResponse execute() {
             Bank bank = Bank.getInstance();
             Status status = bank.transfer(_source_uuid, _target_uuid, _amount);
+            log(String.format("transfer(%d, %d, %d) %s", getSourceUuid(), getTargetUuid(), getAmount(), status));
             return new TransferResponse(status);
         }
 
-        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+        public int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
             return peer.transfer(getTimestamp(), getServerId(), getSourceUuid(), getTargetUuid(), getAmount());
         }
     }

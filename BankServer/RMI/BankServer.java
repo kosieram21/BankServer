@@ -2,8 +2,6 @@ package BankServer.RMI;
 
 import BankServer.Bank;
 
-import java.io.IOException;
-
 public class BankServer {
     private static void initializeDataState() {
         Bank bank = Bank.getInstance();
@@ -21,7 +19,7 @@ public class BankServer {
         config_file.removeEntry(server_id);
         final int num_clients = Integer.parseInt(args[2]);
 
-        Bank.getInstance().initializeLogger(server_id);
+        ServerLog.getInstance().initialize(server_id);
         initializeDataState();
 
         final ConfigFile.Entry local_server = config_file.getEntry(server_id);

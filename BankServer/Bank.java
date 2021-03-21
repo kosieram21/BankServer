@@ -9,7 +9,6 @@ import java.util.logging.FileHandler;
 
 public class Bank {
     private final Hashtable<Integer, Account> _accounts = new Hashtable<Integer, Account>();
-    private final Logger _logger = Logger.getLogger(Bank.class.getName());
 
     static class Account {
         private int _uuid;
@@ -37,22 +36,11 @@ public class Bank {
         return _instance;
     }
 
-    private boolean _logger_initialized = false;
-    public void initializeLogger(int server_id) throws IOException {
-        if(!_logger_initialized) {
-            FileHandler handler = new FileHandler(String.format("serverLogfile-%d.txt", server_id));
-            _logger.addHandler(handler);
-            handler.setFormatter(new SimpleFormatter());
-            _logger_initialized = true;
-        }
-    }
-
     public int createAccount() {
         Account account = new Account();
         account.setUuid(getNextUuid());
         account.setBalance(0);
         _accounts.put(account.getUuid(), account);
-        _logger.info(String.format("createAccount() -> %d", account.getUuid()));
         return account.getUuid();
     }
 
@@ -70,14 +58,11 @@ public class Bank {
             }
         }
 
-        _logger.info(String.format("deposit(%d, %d) -> %s", uuid, amount, status));
-
         return status;
     }
 
     public int getBalance(int uuid) {
         Account account = _accounts.get(uuid);
-        _logger.info(String.format("getBalance(%d) -> %d", uuid, account.getBalance()));
         return account.getBalance();
     }
 
@@ -113,17 +98,7 @@ public class Bank {
             }
         }
 
-        _logger.info(String.format("transfer(%d, %d, %d) -> %s", source_uuid, target_uuid, amount, status));
-
         return status;
-    }
-
-    public void halt() {
-        int sum = 0;
-        Set<Integer> keys = _accounts.keySet();
-        for(Integer key : keys)
-            sum += getBalance(key);
-        _logger.info(String.format("%d across all accounts", sum));
     }
 
     private int _nextUuid = 0;

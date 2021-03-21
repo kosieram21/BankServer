@@ -5,6 +5,8 @@ import BankServer.Bank;
 import java.io.IOException;
 
 public class BankServicePeer implements IBankServicePeer {
+    private static final StateMachine.Request.Source REQUEST_SOURCE = StateMachine.Request.Source.Server;
+
     private final LamportClock _clock;
     private final StateMachine _state_machine;
 
@@ -20,22 +22,22 @@ public class BankServicePeer implements IBankServicePeer {
 
     @Override
     public int createAccount(int timestamp, int server_id) throws IOException, InterruptedException {
-        return enqueueRequest(new StateMachine.CreateAccountRequest(timestamp, server_id));
+        return enqueueRequest(new StateMachine.CreateAccountRequest(REQUEST_SOURCE, timestamp, server_id));
     }
 
     @Override
     public int deposit(int timestamp, int server_id, int uuid, int amount) throws IOException, InterruptedException {
-        return enqueueRequest(new StateMachine.DepositRequest(timestamp, server_id, uuid, amount));
+        return enqueueRequest(new StateMachine.DepositRequest(REQUEST_SOURCE, timestamp, server_id, uuid, amount));
     }
 
     @Override
     public int getBalance(int timestamp, int server_id, int uuid) throws IOException, InterruptedException {
-        return enqueueRequest(new StateMachine.GetBalanceRequest(timestamp, server_id, uuid));
+        return enqueueRequest(new StateMachine.GetBalanceRequest(REQUEST_SOURCE, timestamp, server_id, uuid));
     }
 
     @Override
     public int transfer(int timestamp, int server_id, int source_uuid, int target_uuid, int amount) throws IOException, InterruptedException {
-        return enqueueRequest(new StateMachine.TransferRequest(timestamp, server_id, source_uuid, target_uuid, amount));
+        return enqueueRequest(new StateMachine.TransferRequest(REQUEST_SOURCE, timestamp, server_id, source_uuid, target_uuid, amount));
     }
 
     private int enqueueRequest(StateMachine.Request request) {
@@ -51,7 +53,6 @@ public class BankServicePeer implements IBankServicePeer {
 
     @Override
     public void halt() {
-        Bank bank = Bank.getInstance();
-        bank.halt();
+        // TODO: shutdown server
     }
 }

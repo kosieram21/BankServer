@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BankService implements IBankService {
+    private static final StateMachine.Request.Source REQUEST_SOURCE = StateMachine.Request.Source.Client;
+
     private  final LamportClock _clock;
     private final StateMachine _state_machine;
 
@@ -38,7 +40,7 @@ public class BankService implements IBankService {
     @Override
     public int createAccount() throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
-        StateMachine.CreateAccountRequest request = new StateMachine.CreateAccountRequest(timestamp, _local_server_id);
+        StateMachine.CreateAccountRequest request = new StateMachine.CreateAccountRequest(REQUEST_SOURCE, timestamp, _local_server_id);
         StateMachine.CreateAccountResponse response = (StateMachine.CreateAccountResponse)executeRequest(request);
         return response.getUuid();
     }
@@ -46,7 +48,7 @@ public class BankService implements IBankService {
     @Override
     public Status deposit(int uuid, int amount) throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
-        StateMachine.DepositRequest request = new StateMachine.DepositRequest(timestamp, _local_server_id, uuid, amount);
+        StateMachine.DepositRequest request = new StateMachine.DepositRequest(REQUEST_SOURCE, timestamp, _local_server_id, uuid, amount);
         StateMachine.DepositResponse response = (StateMachine.DepositResponse)executeRequest(request);
         return response.getStatus();
     }
@@ -54,7 +56,7 @@ public class BankService implements IBankService {
     @Override
     public int getBalance(int uuid) throws IOException, InterruptedException, NotBoundException {
         int timestamp = _clock.advance();
-        StateMachine.GetBalanceRequest request = new StateMachine.GetBalanceRequest(timestamp, _local_server_id, uuid);
+        StateMachine.GetBalanceRequest request = new StateMachine.GetBalanceRequest(REQUEST_SOURCE, timestamp, _local_server_id, uuid);
         StateMachine.GetBalanceResponse response = (StateMachine.GetBalanceResponse)executeRequest(request);
         return response.getBalance();
     }
@@ -64,7 +66,7 @@ public class BankService implements IBankService {
             throws IOException, InterruptedException, NotBoundException
     {
         int timestamp = _clock.advance();
-        StateMachine.TransferRequest request = new StateMachine.TransferRequest(timestamp, _local_server_id, source_uuid, target_uuid, amount);
+        StateMachine.TransferRequest request = new StateMachine.TransferRequest(REQUEST_SOURCE, timestamp, _local_server_id, source_uuid, target_uuid, amount);
         StateMachine.TransferResponse response = (StateMachine.TransferResponse)executeRequest(request);
         return response.getStatus();
     }
@@ -86,7 +88,6 @@ public class BankService implements IBankService {
         if(_halted_clients.size() == _num_clients) {
             multicast(peer -> peer.halt());
             Bank bank = Bank.getInstance();
-            bank.halt();
             // shutdown server
         }
     }
