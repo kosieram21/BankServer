@@ -2,6 +2,7 @@ package BankServer;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.FileHandler;
@@ -115,6 +116,14 @@ public class Bank {
         _logger.info(String.format("transfer(%d, %d, %d) -> %s", source_uuid, target_uuid, amount, status));
 
         return status;
+    }
+
+    public void halt() {
+        int sum = 0;
+        Set<Integer> keys = _accounts.keySet();
+        for(Integer key : keys)
+            sum += getBalance(key);
+        _logger.info(String.format("%d across all accounts", sum));
     }
 
     private int _nextUuid = 0;
