@@ -35,10 +35,10 @@ public class Client {
         final int thread_count = Integer.parseInt(args[1]);
         final ConfigFile config_file = ConfigFile.parse(args[2]);
 
+        ServiceManager service_manager = ServiceManager.getInstance();
         final ConfigFile.Entry entry = config_file.removeEntry(0);
-        final IBankService lowest = ServiceManager.getService(entry, ServiceManager.BANK_SERVICE);
-
-        final List<IBankService> bank_services = ServiceManager.getServices(config_file, ServiceManager.BANK_SERVICE);
+        final IBankService lowest = service_manager.getService(entry, ServiceManager.BANK_SERVICE);
+        final List<IBankService> bank_services = service_manager.getServices(config_file, ServiceManager.BANK_SERVICE);
         bank_services.add(lowest);
 
         Client.WorkerThread[] threads = new Client.WorkerThread[thread_count];

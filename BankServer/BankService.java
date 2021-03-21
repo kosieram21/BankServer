@@ -80,11 +80,12 @@ public class BankService implements IBankService {
 
     @Override
     public void halt(int client_id) throws IOException, NotBoundException {
-        if(!_halted_clients.contains(client_id))
-            _halted_clients.add(client_id);
+        if(!_halted_clients.contains(client_id)) _halted_clients.add(client_id);
         if(_halted_clients.size() == _num_clients) {
+            Bank.getInstance().printState();
             multicast(IBankServicePeer::halt);
-            Server.shutdown();
+            ServiceManager service_manager = ServiceManager.getInstance();
+            service_manager.unbindAllServices(_local_server_id);
         }
     }
 
@@ -99,7 +100,11 @@ public class BankService implements IBankService {
 
     private void multicast(ThrowingConsumer<IBankServicePeer> send_message)
             throws RemoteException, NotBoundException, MalformedURLException {
-        if(_peers == null) _peers = ServiceManager.getServices(_config_file, ServiceManager.BANK_SERVICE_PEER);
+        if(_peers == null) {
+            ServiceManager service_manager = ServiceManager.getInstance();
+            _peers = service_manager.getServices(_config_file, ServiceManager.BANK_SERVICE_PEER);
+        }
+
         for (IBankServicePeer peer : _peers)
             send_message.accept(peer);
     }

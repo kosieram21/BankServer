@@ -1,6 +1,8 @@
 package BankServer;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 
 public class BankServicePeer implements IBankServicePeer {
     private static final StateMachine.Request.Source REQUEST_SOURCE = StateMachine.Request.Source.Server;
@@ -50,7 +52,9 @@ public class BankServicePeer implements IBankServicePeer {
     }
 
     @Override
-    public void halt() {
-        Server.shutdown();
+    public void halt() throws RemoteException, NotBoundException {
+        Bank.getInstance().printState();
+        ServiceManager service_manager = ServiceManager.getInstance();
+        service_manager.unbindAllServices(_local_server_id);
     }
 }

@@ -1,6 +1,7 @@
 package BankServer;
 
 import java.util.Hashtable;
+import java.util.Set;
 
 public class Bank {
     private final Hashtable<Integer, Account> _accounts = new Hashtable<Integer, Account>();
@@ -94,6 +95,18 @@ public class Bank {
         }
 
         return status;
+    }
+
+    public void printState() {
+        ServerLog log = ServerLog.getInstance();
+        int sum = 0;
+        Set<Integer> keys = _accounts.keySet();
+        for(Integer key : keys) {
+            int balance = getBalance(key);
+            sum += balance;
+            log.log(String.format("account %d's balance is currently %d", key, balance));
+        }
+        log.log(String.format("total balance across all accounts is %d", sum));
     }
 
     private int _nextUuid = 0;
