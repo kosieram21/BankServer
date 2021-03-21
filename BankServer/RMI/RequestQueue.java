@@ -64,21 +64,21 @@ public class RequestQueue {
 
     static abstract class Request implements Comparable<Request> {
         private final int _timestamp;
-        private final int _process_id;
+        private final int _server_id;
 
-        Request(int timestamp, int process_id) {
+        Request(int timestamp, int server_id) {
             _timestamp = timestamp;
-            _process_id = process_id;
+            _server_id = server_id;
         }
 
         public int getTimestamp() { return _timestamp; }
 
-        public int getProcessId() { return _process_id; }
+        public int getServerId() { return _server_id; }
 
         @Override
         public int compareTo(Request o) {
             return getTimestamp() == o.getTimestamp() ?
-                    Integer.compare(getProcessId(), o.getProcessId()) :
+                    Integer.compare(getServerId(), o.getServerId()) :
                     Integer.compare(getTimestamp(), o.getTimestamp());
         }
 
@@ -88,8 +88,8 @@ public class RequestQueue {
     }
 
     static class CreateAccountRequest extends Request {
-        CreateAccountRequest(int timestamp, int process_id) {
-            super(timestamp, process_id);
+        CreateAccountRequest(int timestamp, int server_id) {
+            super(timestamp, server_id);
         }
 
         CreateAccountResponse execute() throws IOException {
@@ -99,7 +99,7 @@ public class RequestQueue {
         }
 
         int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
-            return peer.createAccount(getTimestamp(), getProcessId());
+            return peer.createAccount(getTimestamp(), getServerId());
         }
     }
 
@@ -107,8 +107,8 @@ public class RequestQueue {
         private final int _uuid;
         private final int _amount;
 
-        DepositRequest(int timestamp, int process_id, int uuid, int amount) {
-            super(timestamp, process_id);
+        DepositRequest(int timestamp, int server_id, int uuid, int amount) {
+            super(timestamp, server_id);
             _uuid = uuid;
             _amount = amount;
         }
@@ -128,15 +128,15 @@ public class RequestQueue {
         }
 
         int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
-            return peer.deposit(getTimestamp(), getProcessId(), getUuid(), getAmount());
+            return peer.deposit(getTimestamp(), getServerId(), getUuid(), getAmount());
         }
     }
 
     static class GetBalanceRequest extends Request {
         private final int _uuid;
 
-        GetBalanceRequest(int timestamp, int process_id, int uuid) {
-            super(timestamp, process_id);
+        GetBalanceRequest(int timestamp, int server_id, int uuid) {
+            super(timestamp, server_id);
             _uuid = uuid;
         }
 
@@ -151,28 +151,28 @@ public class RequestQueue {
         }
 
         int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
-            return peer.getBalance(getTimestamp(), getProcessId(), getUuid());
+            return peer.getBalance(getTimestamp(), getServerId(), getUuid());
         }
     }
 
     static class TransferRequest extends Request {
-        private final int _sourceUuid;
-        private final int _targetUuid;
+        private final int _source_uuid;
+        private final int _target_uuid;
         private final int _amount;
 
-        TransferRequest(int timestamp, int process_id, int source_uuid, int target_uuid, int amount) {
-            super(timestamp, process_id);
-            _sourceUuid = source_uuid;
-            _targetUuid = target_uuid;
+        TransferRequest(int timestamp, int server_id, int source_uuid, int target_uuid, int amount) {
+            super(timestamp, server_id);
+            _source_uuid = source_uuid;
+            _target_uuid = target_uuid;
             _amount = amount;
         }
 
         public int getSourceUuid() {
-            return _sourceUuid;
+            return _source_uuid;
         }
 
         public int getTargetUuid() {
-            return _targetUuid;
+            return _target_uuid;
         }
 
         public int getAmount() {
@@ -181,12 +181,12 @@ public class RequestQueue {
 
         TransferResponse execute() throws IOException {
             Bank bank = Bank.getInstance();
-            Status status = bank.transfer(_sourceUuid, _targetUuid, _amount);
+            Status status = bank.transfer(_source_uuid, _target_uuid, _amount);
             return new TransferResponse(status);
         }
 
         int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
-            return peer.transfer(getTimestamp(), getProcessId(), getSourceUuid(), getTargetUuid(), getAmount());
+            return peer.transfer(getTimestamp(), getServerId(), getSourceUuid(), getTargetUuid(), getAmount());
         }
     }
 
@@ -210,10 +210,10 @@ public class RequestQueue {
         else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
-    public synchronized Response executeImmediately(int timestamp, int pId, int local_pId) throws NullPointerException, IOException {
+    public synchronized Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException, IOException {
         Request matching_request = null;
         for (Request request : _queue) {
-            if (request.getTimestamp() == timestamp && request.getProcessId() == pId) {
+            if (request.getTimestamp() == timestamp && request.getServerId() == server_id) {
                 matching_request = request;
                 break;
             }
@@ -224,7 +224,7 @@ public class RequestQueue {
         Response matching_response = matching_request.execute();
 
         Request next_request = _queue.peek();
-        if (next_request != null && next_request.getProcessId() == local_pId)
+        if (next_request != null && next_request.getServerId() == local_server_id)
             next_request.notify();
 
         return matching_response;
