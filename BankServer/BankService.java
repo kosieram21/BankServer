@@ -17,10 +17,10 @@ public class BankService implements IBankService {
     private final int _local_server_id;
     private final ConfigFile _config_file;
 
-    private List<IBankServicePeer> _peers;
-
     private final int _num_clients;
     private final List<Integer> _halted_clients;
+
+    private List<IBankServicePeer> _peers;
 
     public BankService(int local_server_id, ConfigFile config_file, int num_clients) {
         super();

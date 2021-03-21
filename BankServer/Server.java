@@ -11,13 +11,13 @@ public class Server {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 3) throw new RuntimeException("Syntax: RMI.BankServer server-id num-clients config-file");
+        if (args.length != 3) throw new RuntimeException("Syntax: Server server-id num-clients config-file");
         final int server_id = Integer.parseInt(args[0]);
         final int num_clients = Integer.parseInt(args[1]);
         final ConfigFile config_file = ConfigFile.parse(args[2]);
         final ConfigFile.Entry local_server = config_file.removeEntry(server_id);
 
-        ServerLog.getInstance().initialize(server_id);
+        LogFile.Server.getInstance().initialize(server_id);
         initializeDataState();
 
         BankService bank_service = new BankService(server_id, config_file, num_clients);

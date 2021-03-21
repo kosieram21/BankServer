@@ -90,7 +90,7 @@ public class StateMachine {
         public abstract int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException;
 
         protected void log(String msg) {
-            ServerLog log = ServerLog.getInstance();
+            LogFile.Server log = LogFile.Server.getInstance();
             log.log(String.format("%d %s [%d,%d] %s", getServerId(), getRequestSource(), getTimestamp(), getServerId(), msg));
         }
     }

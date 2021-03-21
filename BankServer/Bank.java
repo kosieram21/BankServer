@@ -98,7 +98,7 @@ public class Bank {
     }
 
     public void printState() {
-        ServerLog log = ServerLog.getInstance();
+        LogFile.Server log = LogFile.Server.getInstance();
         int sum = 0;
         Set<Integer> keys = _accounts.keySet();
         for(Integer key : keys) {
