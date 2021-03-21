@@ -55,6 +55,6 @@ public class BankServicePeer implements IBankServicePeer {
     public void halt() throws RemoteException, NotBoundException {
         Bank.getInstance().printState();
         ServiceManager service_manager = ServiceManager.getInstance();
-        service_manager.unbindAllServices(_local_server_id);
+        service_manager.unbindAllServices();
     }
 }

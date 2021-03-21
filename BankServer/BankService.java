@@ -85,7 +85,7 @@ public class BankService implements IBankService {
             Bank.getInstance().printState();
             multicast(IBankServicePeer::halt);
             ServiceManager service_manager = ServiceManager.getInstance();
-            service_manager.unbindAllServices(_local_server_id);
+            service_manager.unbindAllServices();
         }
     }
 

@@ -25,7 +25,8 @@ public class Server {
 
         ServiceManager service_manager = ServiceManager.getInstance();
         service_manager.setPort(local_server.getRmiRegistryPort());
-        service_manager.<IBankService>bindService(bank_service, ServiceManager.BANK_SERVICE, server_id);
-        service_manager.<IBankServicePeer>bindService(bank_service_peer, ServiceManager.BANK_SERVICE_PEER, server_id);
+        service_manager.setId(server_id);
+        service_manager.<IBankService>bindService(ServiceManager.BANK_SERVICE, bank_service);
+        service_manager.<IBankServicePeer>bindService(ServiceManager.BANK_SERVICE_PEER, bank_service_peer);
     }
 }

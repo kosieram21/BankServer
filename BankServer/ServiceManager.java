@@ -16,6 +16,7 @@ public class ServiceManager {
 
     private final Hashtable<String, Remote> _services = new Hashtable<String, Remote>();
     private int _port;
+    private int _id;
 
     private static ServiceManager _instance;
     public static ServiceManager getInstance() {
@@ -24,34 +25,34 @@ public class ServiceManager {
         return _instance;
     }
 
-    public void setPort(int port) {
-        _port = port;
-    }
+    public void setPort(int port) { _port = port; }
+    public void setId(int id) { _id = id; }
 
-    public <TService extends Remote> void bindService(Remote service, String service_name, int id)
+    public <TService extends Remote> void bindService(String service_name, Remote service)
             throws RemoteException, AlreadyBoundException
     {
         TService service_stub = (TService) UnicastRemoteObject.exportObject(service, 0);
         Registry registry = getRmiRegistry(_port);
-        String full_service_name = fullServiceName(service_name, id);
+        String full_service_name = fullServiceName(service_name, _id);
         registry.bind(full_service_name, service_stub);
         _services.put(full_service_name, service);
     }
 
-    public void unbindService(Remote service, String service_name, int id)
+    public void unbindService(String service_name)
             throws RemoteException, NotBoundException
     {
+        Remote service = _services.get(service_name);
         Registry registry = getRmiRegistry(_port);
-        registry.unbind(fullServiceName(service_name, id));
-        UnicastRemoteObject.unexportObject(service, true);
+        registry.unbind(service_name);
+        UnicastRemoteObject.unexportObject(service, false);
     }
 
-    public void unbindAllServices(int id)
+    public void unbindAllServices()
             throws RemoteException, NotBoundException
     {
         Set<String> keys = _services.keySet();
         for(String key : keys)
-            unbindService(_services.get(key), key, id);
+            unbindService(key);
     }
 
     public <TService extends Remote> List<TService> getServices(ConfigFile config_file, String service_name)
