@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,6 +18,7 @@ public class BankService implements IBankService {
     private final ConfigFile _config_file;
 
     private List<IBankServicePeer> _peers;
+    private List<Integer> _known_clients;
 
     public BankService(int local_server_id, ConfigFile config_file) {
         super();
@@ -25,6 +27,8 @@ public class BankService implements IBankService {
 
         _local_server_id = local_server_id;
         _config_file = config_file;
+
+        _known_clients = new ArrayList<Integer>();
     }
 
     @Override
@@ -61,13 +65,6 @@ public class BankService implements IBankService {
         return response.getStatus();
     }
 
-    @Override
-    public void halt() throws NotBoundException, InterruptedException, IOException {
-        int timestamp = _clock.advance();
-        RequestQueue.HaltRequest request = new RequestQueue.HaltRequest(timestamp, _local_server_id);
-        executeRequest(request);
-    }
-
     private RequestQueue.Response executeRequest(RequestQueue.Request request)
             throws IOException, NotBoundException, InterruptedException
     {
@@ -78,7 +75,23 @@ public class BankService implements IBankService {
         return response;
     }
 
-    private void multicast(RequestQueue.Request request) throws InterruptedException, IOException, NotBoundException {
+    @Override
+    public void declarePresence(int client_id) throws RemoteException {
+        if(!_known_clients.contains(client_id))
+            _known_clients.add(client_id);
+    }
+
+    @Override
+    public void halt(int client_id) throws IOException, NotBoundException {
+        if(_known_clients.contains(client_id))
+            _known_clients.remove(client_id);
+        if(_known_clients.isEmpty()) {
+            multicast(peer -> peer.halt());
+            // shutdown server
+        }
+    }
+
+    private void multicast(RequestQueue.Request request) throws IOException, NotBoundException {
         AtomicInteger max_timestamp = new AtomicInteger(0);
         multicast(peer -> {
             int timestamp = request.sendToPeer(peer);

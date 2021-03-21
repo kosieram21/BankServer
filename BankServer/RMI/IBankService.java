@@ -12,5 +12,6 @@ public interface IBankService extends Remote {
     Status deposit(int uuid, int amount) throws IOException, InterruptedException, NotBoundException;
     int getBalance(int uuid) throws IOException, InterruptedException, NotBoundException;
     Status transfer(int source_uuid, int target_uuid, int amount) throws IOException, InterruptedException, NotBoundException;
-    void halt() throws IOException, InterruptedException, NotBoundException;
+    void declarePresence(int client_id) throws RemoteException;
+    void halt(int client_id) throws IOException, NotBoundException;
 }

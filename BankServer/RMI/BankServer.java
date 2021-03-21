@@ -28,7 +28,7 @@ public class BankServer {
         BankService bank_service = new BankService(server_id, config_file);
         BankServicePeer bank_service_peer = new BankServicePeer(server_id);
 
-        ServiceManager.<IBankService>bindService(bank_service, ServiceManager.BANK_SERVICE, port);
-        ServiceManager.<IBankServicePeer>bindService(bank_service_peer, ServiceManager.BANK_SERVICE_PEER, port);
+        ServiceManager.<IBankService>bindService(bank_service, ServiceManager.BANK_SERVICE, server_id, port);
+        ServiceManager.<IBankServicePeer>bindService(bank_service_peer, ServiceManager.BANK_SERVICE_PEER, server_id, port);
     }
 }

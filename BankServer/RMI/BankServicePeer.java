@@ -36,11 +36,6 @@ public class BankServicePeer implements IBankServicePeer {
         return enqueueRequest(new RequestQueue.TransferRequest(timestamp, server_id, source_uuid, target_uuid, amount));
     }
 
-    @Override
-    public int halt(int timestamp, int server_id) {
-        return enqueueRequest(new RequestQueue.HaltRequest(timestamp, server_id));
-    }
-
     private int enqueueRequest(RequestQueue.Request request) {
         int timestamp = _clock.merge(request.getTimestamp());
         _request_queue.enqueue(request);
@@ -50,5 +45,10 @@ public class BankServicePeer implements IBankServicePeer {
     @Override
     public void execute(int timestamp, int server_id) throws IOException {
         _request_queue.executeImmediately(timestamp, server_id, _local_server_id);
+    }
+
+    @Override
+    public void halt() {
+        // shutdown server
     }
 }

@@ -37,7 +37,7 @@ public class ConfigFile implements Iterable<ConfigFile.Entry> {
         List<Entry> entries = new ArrayList<Entry>();
         while(scanner.hasNext()) {
             String line = scanner.nextLine();
-            String[] parts = line.split("-");
+            String[] parts = line.split(",");
 
             String host_name = parts[0];
             int server_id = Integer.parseInt(parts[1]);
@@ -59,9 +59,10 @@ public class ConfigFile implements Iterable<ConfigFile.Entry> {
         throw new Exception("Server with id: " + String.valueOf(server_id) + " not found in config.");
     }
 
-    public void removeEntry(int server_id) throws Exception {
+    public Entry removeEntry(int server_id) throws Exception {
         Entry entry = getEntry(server_id);
         _entries.remove(entry);
+        return entry;
     }
 
     @Override

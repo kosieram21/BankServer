@@ -12,10 +12,10 @@ public class ServiceManager {
     public static final String BANK_SERVICE = "BankServer.RMI.BankService";
     public static final String BANK_SERVICE_PEER = "BankServer.RMI.BankServicePeer";
 
-    public static <TService extends Remote> void bindService(Remote service, String service_name, int port) throws RemoteException, AlreadyBoundException {
+    public static <TService extends Remote> void bindService(Remote service, String service_name, int id, int port) throws RemoteException, AlreadyBoundException {
         TService service_stub = (TService) UnicastRemoteObject.exportObject(service, 0);
         Registry registry = getRmiRegistry(port);
-        registry.bind(service_name, service_stub);
+        registry.bind(fullServiceName(service_name, id), service_stub);
     }
 
     public static <TService extends Remote> List<TService> getServices(ConfigFile config_file, String service_name)
@@ -30,12 +30,16 @@ public class ServiceManager {
     public static <TService extends Remote> TService getService(ConfigFile.Entry entry, String service_name)
             throws RemoteException, NotBoundException, MalformedURLException
     {
-        final String full_name = fullServiceName(entry.getHostname(), entry.getRmiRegistryPort(), service_name, entry.getServerId());
-        return (TService) Naming.lookup(full_name);
+        final String service_path = getServicePath(entry.getHostname(), entry.getRmiRegistryPort(), service_name, entry.getServerId());
+        return (TService) Naming.lookup(service_path);
     }
 
-    private static String fullServiceName(String hostname, int port, String service, int id) {
-        return String.format("//%s:%d/%s-%d", hostname, port, service, id);
+    private static String getServicePath(String hostname, int port, String service, int id) {
+        return String.format("//%s:%d/%s", hostname, port, fullServiceName(service, id));
+    }
+
+    private static String fullServiceName(String service, int id) {
+        return String.format("%s-%d", service, id);
     }
 
     private static Registry getRmiRegistry(int port) throws RemoteException {

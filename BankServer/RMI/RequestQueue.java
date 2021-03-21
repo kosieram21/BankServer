@@ -190,20 +190,6 @@ public class RequestQueue {
         }
     }
 
-    static class HaltRequest extends Request {
-        HaltRequest(int timestamp, int server_id) {
-            super(timestamp, server_id);
-        }
-
-        Response execute() {
-            return new Response();
-        }
-
-        int sendToPeer(IBankServicePeer peer) throws IOException {
-            return peer.halt(getTimestamp(), getServerId());
-        }
-    }
-
     // endregion
 
     private final PriorityQueue<Request> _queue = new PriorityQueue<Request>();
