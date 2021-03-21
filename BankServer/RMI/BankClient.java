@@ -36,7 +36,7 @@ public class BankClient {
 
     public static void main(String[] args) throws Exception {
         // parse command line arguments
-        if (args.length != 3) throw new RuntimeException("hostname and port number as arguments");
+        if (args.length != 3) throw new RuntimeException("Syntax: RMI.BankServer client-id thread-count config-file");
         final int client_id = Integer.parseInt(args[0]);
         final int thread_count = Integer.parseInt(args[1]);
         final ConfigFile config_file = ConfigFile.parse(args[2]);
