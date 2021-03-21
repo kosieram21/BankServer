@@ -132,7 +132,7 @@ public class StateMachine {
 
         public DepositResponse execute() {
             Bank bank = Bank.getInstance();
-            Status status = bank.deposit(_uuid, _amount);
+            Status status = bank.deposit(getUuid(), getAmount());
             log(String.format("deposit(%d, %d) %s", getUuid(), getAmount(), status));
             return new DepositResponse(status);
         }
@@ -156,7 +156,7 @@ public class StateMachine {
 
         public GetBalanceResponse execute() {
             Bank bank = Bank.getInstance();
-            int balance = bank.getBalance(_uuid);
+            int balance = bank.getBalance(getUuid());
             log(String.format("getBalance(%d) %d", getUuid(), balance));
             return new GetBalanceResponse(balance);
         }
@@ -192,7 +192,7 @@ public class StateMachine {
 
         public TransferResponse execute() {
             Bank bank = Bank.getInstance();
-            Status status = bank.transfer(_source_uuid, _target_uuid, _amount);
+            Status status = bank.transfer(getSourceUuid(), getTargetUuid(), getAmount());
             log(String.format("transfer(%d, %d, %d) %s", getSourceUuid(), getTargetUuid(), getAmount(), status));
             return new TransferResponse(status);
         }

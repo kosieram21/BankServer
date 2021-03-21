@@ -37,7 +37,7 @@ public class ConfigFile implements Iterable<ConfigFile.Entry> {
         List<Entry> entries = new ArrayList<Entry>();
         while(scanner.hasNext()) {
             String line = scanner.nextLine();
-            String[] parts = line.split(",");
+            String[] parts = line.split(" ");
 
             String host_name = parts[0];
             int server_id = Integer.parseInt(parts[1]);

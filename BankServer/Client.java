@@ -17,8 +17,8 @@ public class Client {
                 final Random rng = new Random();
                 for(int i = 0; i < 200; i++) {
                     IBankService bank_service = _bank_services.get(rng.nextInt(_bank_services.size()));
-                    int source_uuid = rng.nextInt(21) + 1;
-                    int target_uuid = rng.nextInt(21) + 1;
+                    int source_uuid = rng.nextInt(20);
+                    int target_uuid = rng.nextInt(20);
                     Status status = bank_service.transfer(source_uuid, target_uuid, transfer_amount);
                 }
             }

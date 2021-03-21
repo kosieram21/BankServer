@@ -36,12 +36,11 @@ public class Server {
         final int server_id = Integer.parseInt(args[0]);
         final int num_clients = Integer.parseInt(args[1]);
         final ConfigFile config_file = ConfigFile.parse(args[2]);
-        config_file.removeEntry(server_id);
+        final ConfigFile.Entry local_server = config_file.removeEntry(server_id);
 
         ServerLog.getInstance().initialize(server_id);
         initializeDataState();
 
-        final ConfigFile.Entry local_server = config_file.getEntry(server_id);
         final int port = local_server.getRmiRegistryPort();
         BankService bank_service = new BankService(server_id, config_file, num_clients);
         BankServicePeer bank_service_peer = new BankServicePeer(server_id);

@@ -12,7 +12,9 @@ public class ServiceManager {
     public static final String BANK_SERVICE = "BankServer.BankService";
     public static final String BANK_SERVICE_PEER = "BankServer.BankServicePeer";
 
-    public static <TService extends Remote> void bindService(Remote service, String service_name, int id, int port) throws RemoteException, AlreadyBoundException {
+    public static <TService extends Remote> void bindService(Remote service, String service_name, int id, int port)
+            throws RemoteException, AlreadyBoundException
+    {
         TService service_stub = (TService) UnicastRemoteObject.exportObject(service, 0);
         Registry registry = getRmiRegistry(port);
         registry.bind(fullServiceName(service_name, id), service_stub);
@@ -39,16 +41,16 @@ public class ServiceManager {
     }
 
     private static String fullServiceName(String service, int id) {
-        return String.format("%s-%d", service, id);
+        return String.format("%s%d", service, id);
     }
 
     private static Registry getRmiRegistry(int port) throws RemoteException {
         Registry registry;
         try {
+            LocateRegistry.createRegistry(port);
             registry = LocateRegistry.getRegistry(port);
         }
         catch (RemoteException e) {
-            LocateRegistry.createRegistry(port);
             registry = LocateRegistry.getRegistry(port);
         }
         return registry;
