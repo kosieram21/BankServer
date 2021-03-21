@@ -1,11 +1,6 @@
 package BankServer;
 
-import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Set;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.FileHandler;
 
 public class Bank {
     private final Hashtable<Integer, Account> _accounts = new Hashtable<Integer, Account>();
