@@ -1,7 +1,5 @@
 package BankServer.RMI;
 
-import BankServer.Bank;
-
 import java.io.IOException;
 
 public class BankServicePeer implements IBankServicePeer {
@@ -53,6 +51,6 @@ public class BankServicePeer implements IBankServicePeer {
 
     @Override
     public void halt() {
-        // TODO: shutdown server
+        BankServer.shutdown();
     }
 }

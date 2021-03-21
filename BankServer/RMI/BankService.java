@@ -1,7 +1,6 @@
 package BankServer.RMI;
 
 import BankServer.Status;
-import BankServer.Bank;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -86,9 +85,8 @@ public class BankService implements IBankService {
         if(!_halted_clients.contains(client_id))
             _halted_clients.add(client_id);
         if(_halted_clients.size() == _num_clients) {
-            multicast(peer -> peer.halt());
-            Bank bank = Bank.getInstance();
-            // shutdown server
+            multicast(IBankServicePeer::halt);
+            BankServer.shutdown();
         }
     }
 
