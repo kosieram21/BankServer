@@ -73,9 +73,7 @@ public class StateMachine {
         }
 
         public Source getRequestSource() { return _request_source;}
-
         public int getTimestamp() { return _timestamp; }
-
         public int getServerId() { return _server_id; }
 
         @Override
