@@ -103,6 +103,6 @@ public class Bank {
 
     private int _nextUuid = 0;
     private synchronized int getNextUuid() {
-        return ++_nextUuid;
+        return _nextUuid++;
     }
 }

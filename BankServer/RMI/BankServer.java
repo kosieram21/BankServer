@@ -19,7 +19,7 @@ public class BankServer {
         ServerLog log = ServerLog.getInstance();
         Bank bank = Bank.getInstance();
         int sum = 0;
-        for(int i = 1; i < NUM_ACCOUNTS + 1; i++) {
+        for(int i = 0; i < NUM_ACCOUNTS; i++) {
             int balance = bank.getBalance(i);
             sum += balance;
             log.log(String.format("account %d's balance is currently %d", i, balance));
