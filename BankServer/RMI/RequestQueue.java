@@ -82,7 +82,7 @@ public class RequestQueue {
                     Integer.compare(getTimestamp(), o.getTimestamp());
         }
 
-        abstract Response execute() throws IOException;
+        abstract Response execute();
 
         abstract int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException;
     }
@@ -92,7 +92,7 @@ public class RequestQueue {
             super(timestamp, server_id);
         }
 
-        CreateAccountResponse execute() throws IOException {
+        CreateAccountResponse execute() {
             Bank bank = Bank.getInstance();
             int uuid = bank.createAccount();
             return new CreateAccountResponse(uuid);
@@ -121,7 +121,7 @@ public class RequestQueue {
             return _amount;
         }
 
-        DepositResponse execute() throws IOException {
+        DepositResponse execute() {
             Bank bank = Bank.getInstance();
             Status status = bank.deposit(_uuid, _amount);
             return new DepositResponse(status);
@@ -144,7 +144,7 @@ public class RequestQueue {
             return _uuid;
         }
 
-        GetBalanceResponse execute() throws IOException {
+        GetBalanceResponse execute() {
             Bank bank = Bank.getInstance();
             int balance = bank.getBalance(_uuid);
             return new GetBalanceResponse(balance);
@@ -179,7 +179,7 @@ public class RequestQueue {
             return _amount;
         }
 
-        TransferResponse execute() throws IOException {
+        TransferResponse execute() {
             Bank bank = Bank.getInstance();
             Status status = bank.transfer(_source_uuid, _target_uuid, _amount);
             return new TransferResponse(status);
@@ -195,11 +195,11 @@ public class RequestQueue {
             super(timestamp, server_id);
         }
 
-        Response execute() throws IOException {
+        Response execute() {
             return new Response();
         }
 
-        int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException {
+        int sendToPeer(IBankServicePeer peer) throws IOException {
             return peer.halt(getTimestamp(), getServerId());
         }
     }
@@ -208,11 +208,18 @@ public class RequestQueue {
 
     private final PriorityQueue<Request> _queue = new PriorityQueue<Request>();
 
+    private static RequestQueue _instance;
+    public synchronized static RequestQueue getInstance() {
+        if (_instance == null)
+            _instance = new RequestQueue();
+        return _instance;
+    }
+
     public synchronized void enqueue(Request request) {
         _queue.add(request);
     }
 
-    public Response execute(Request request) throws InterruptedException, IOException {
+    public Response execute(Request request) throws InterruptedException {
         Request front = _queue.peek();
         if (front != null) {
             if (request.compareTo(front) != 0)
@@ -224,7 +231,7 @@ public class RequestQueue {
         else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
-    public synchronized Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException, IOException {
+    public synchronized Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException {
         Request matching_request = null;
         for (Request request : _queue) {
             if (request.getTimestamp() == timestamp && request.getServerId() == server_id) {
@@ -242,12 +249,5 @@ public class RequestQueue {
             next_request.notify();
 
         return matching_response;
-    }
-
-    private static RequestQueue _instance;
-    public synchronized static RequestQueue getInstance() {
-        if (_instance == null)
-            _instance = new RequestQueue();
-        return _instance;
     }
 }

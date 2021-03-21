@@ -3,12 +3,9 @@ package BankServer.RMI;
 import BankServer.Bank;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.rmi.registry.*;
 
 public class BankServer {
-    private static void initializeDataState() throws IOException {
+    private static void initializeDataState() {
         Bank bank = Bank.getInstance();
         for(int i = 0; i < 20; i++) {
             int uuid = bank.createAccount();
@@ -23,6 +20,7 @@ public class BankServer {
         final ConfigFile config_file = ConfigFile.parse(args[1]);
         config_file.removeEntry(server_id);
 
+        Bank.getInstance().initializeLogger(server_id);
         initializeDataState();
 
         final ConfigFile.Entry local_server = config_file.getEntry(server_id);
