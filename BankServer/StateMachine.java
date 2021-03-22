@@ -262,19 +262,17 @@ public class StateMachine {
     }
 
     public Response execute(Request request) throws InterruptedException {
-        synchronized (request) {
-            Request front = _queue.peek();
-            if (front != null) {
-                if (request.compareTo(front) != 0)
-                    request.wait();
+        Request front = _queue.peek();
+        if (front != null) {
+            if (request.compareTo(front) != 0)
+                synchronized (request) { request.wait(); }
 
-                front = _queue.poll();
-                return front.execute();
-            } else throw new NullPointerException("Response lost and thus cannot be returned");
-        }
+            front = _queue.poll();
+            return front.execute();
+        } else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
-    public synchronized Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException {
+    public Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException {
         Request matching_request = null;
         for (Request request : _queue) {
             if (request.getTimestamp() == timestamp && request.getServerId() == server_id) {
