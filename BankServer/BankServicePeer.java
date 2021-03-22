@@ -41,7 +41,7 @@ public class BankServicePeer implements IBankServicePeer {
         return enqueueRequest(new StateMachine.TransferRequest(REQUEST_SOURCE, timestamp, server_id, source_uuid, target_uuid, amount));
     }
 
-    private synchronized int enqueueRequest(StateMachine.Request request) {
+    private int enqueueRequest(StateMachine.Request request) {
         int timestamp = _clock.merge(request.getTimestamp());
         _state_machine.enqueue(request);
         return timestamp;

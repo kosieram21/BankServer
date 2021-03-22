@@ -273,7 +273,7 @@ public class StateMachine {
         } else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
-    public synchronized Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException {
+    public Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException {
         Request matching_request = null;
         for (Request request : _queue) {
             if (request.getTimestamp() == timestamp && request.getServerId() == server_id) {
