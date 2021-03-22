@@ -264,10 +264,13 @@ public class StateMachine {
     public Response execute(Request request) throws InterruptedException {
         Request front = _queue.peek();
         if (front != null) {
-            if (request.compareTo(front) != 0)
-                synchronized (request) { request.wait(); }
+            if (request.compareTo(front) != 0) {
+                synchronized (request) {
+                    request.wait();
+                    front = _queue.poll();
+                }
+            }
 
-            front = _queue.poll();
             return front.execute();
         } else throw new NullPointerException("Response lost and thus cannot be returned");
     }
