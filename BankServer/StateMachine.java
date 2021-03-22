@@ -268,8 +268,8 @@ public class StateMachine {
                 synchronized (request) { request.wait(); }
             }
 
-            front = _queue.poll();
-            return front.execute();
+            _queue.remove(request);
+            return request.execute();
         } else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
