@@ -71,7 +71,7 @@ public class BankService implements IBankService {
         return response.getStatus();
     }
 
-    private synchronized StateMachine.Response executeRequest(StateMachine.Request request)
+    private StateMachine.Response executeRequest(StateMachine.Request request)
             throws IOException, NotBoundException, InterruptedException
     {
         _state_machine.enqueue(request);
