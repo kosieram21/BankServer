@@ -265,12 +265,10 @@ public class StateMachine {
         Request front = _queue.peek();
         if (front != null) {
             if (request.compareTo(front) != 0) {
-                synchronized (request) {
-                    request.wait();
-                    front = _queue.poll();
-                }
+                synchronized (request) { request.wait(); }
             }
 
+            front = _queue.poll();
             return front.execute();
         } else throw new NullPointerException("Response lost and thus cannot be returned");
     }
