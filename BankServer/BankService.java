@@ -2,6 +2,7 @@ package BankServer;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -101,7 +102,7 @@ public class BankService implements IBankService {
     }
 
     private void multicast(ThrowingConsumer<IBankServicePeer> send_message)
-            throws RemoteException, NotBoundException, MalformedURLException {
+            throws RemoteException, NotBoundException, MalformedURLException, UnknownHostException {
         if(_peers == null) {
             ServiceManager service_manager = ServiceManager.getInstance();
             _peers = service_manager.getServices(_config_file, ServiceManager.BANK_SERVICE_PEER);

@@ -1,6 +1,7 @@
 package BankServer;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
@@ -52,7 +53,7 @@ public class BankServicePeer implements IBankServicePeer {
     }
 
     @Override
-    public void halt() throws RemoteException, NotBoundException {
+    public void halt() throws RemoteException, NotBoundException, UnknownHostException {
         Bank.getInstance().printState();
         ServiceManager service_manager = ServiceManager.getInstance();
         service_manager.unbindAllServices();
