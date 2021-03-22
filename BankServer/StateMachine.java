@@ -261,7 +261,7 @@ public class StateMachine {
         _queue.add(request);
     }
 
-    public Response execute(Request request) throws InterruptedException {
+    public synchronized Response execute(Request request) throws InterruptedException {
         Request front = _queue.peek();
         if (front != null) {
             if (request.compareTo(front) != 0)
