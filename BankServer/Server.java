@@ -19,7 +19,7 @@ public class Server {
         final ConfigFile config_file = ConfigFile.parse(args[2]);
         final ConfigFile.Entry local_server = config_file.removeEntry(server_id);
 
-        System.setProperty("java.rmi.server.hostname", InetAddress.getLocalHost().getHostAddress());
+        System.setProperty("java.rmi.server.hostname", local_server.getHostname());
         LogFile.Server.getInstance().initialize(server_id);
         initializeDataState();
 
