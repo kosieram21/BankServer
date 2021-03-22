@@ -23,6 +23,7 @@ public class LogFile {
             if(!_initialized) {
                 FileHandler handler = new FileHandler(String.format("%s-%d.txt", _logger.getName(), id));
                 _logger.addHandler(handler);
+                _logger.setUseParentHandlers(false);
                 handler.setFormatter(new VerySimpleFormatter());
                 _initialized = true;
             }
