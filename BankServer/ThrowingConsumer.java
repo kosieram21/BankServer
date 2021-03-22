@@ -9,12 +9,13 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
     default void accept(final T elem) {
         try {
             acceptThrows(elem);
-        } catch (final Exception e) {
+        } catch (final Exception ex) {
             // Implement your own exception handling logic here..
             // For example:
             System.out.println("handling an exception...");
+            ex.printStackTrace();
             // Or ...
-            throw new RuntimeException(e);
+            throw new RuntimeException(ex);
         }
     }
 
