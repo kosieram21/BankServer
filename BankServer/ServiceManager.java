@@ -18,11 +18,9 @@ public class ServiceManager {
     private int _id;
 
     private static ServiceManager _instance;
-    public static ServiceManager getInstance() throws UnknownHostException {
-        if (_instance == null) {
-            System.setProperty("java.rmi.server.hostname", InetAddress.getLocalHost().getHostAddress());
+    public static ServiceManager getInstance() {
+        if (_instance == null)
             _instance = new ServiceManager();
-        }
         return _instance;
     }
 
