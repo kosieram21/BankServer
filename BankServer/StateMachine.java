@@ -3,7 +3,7 @@ package BankServer;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class StateMachine {
     private static final LogFile.Server _logger = LogFile.Server.getInstance();
@@ -247,7 +247,7 @@ public class StateMachine {
 
     // endregion
 
-    private final PriorityQueue<Request> _queue = new PriorityQueue<Request>();
+    private final PriorityBlockingQueue<Request> _queue = new PriorityBlockingQueue<Request>();
 
     private static StateMachine _instance;
     public synchronized static StateMachine getInstance() {
