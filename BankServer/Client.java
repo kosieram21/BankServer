@@ -1,10 +1,14 @@
 package BankServer;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Set;
 
 public class Client {
+    private static final LogFile.Client _logger = LogFile.Client.getInstance();
+
     static class WorkerThread extends Thread {
         private final int _client_id;
         private final HashMap<Integer, IBankService> _bank_services;
@@ -12,6 +16,17 @@ public class Client {
         WorkerThread(int client_id, HashMap<Integer, IBankService> bank_services) {
             _client_id = client_id;
             _bank_services = bank_services;
+        }
+
+        private String getPhysicalTimestamp() {
+            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+            Date now = new Date();
+            return sdfDate.format(now);
+        }
+
+        private String generateLogSuffix(int server_id, String event_type) {
+            return String.format("%d %d %s %s",
+                    _client_id, server_id, event_type, getPhysicalTimestamp());
         }
 
         private Integer getServerId(int index) throws Exception {
@@ -26,7 +41,6 @@ public class Client {
 
         public void run() {
             try {
-                LogFile.Client log = LogFile.Client.getInstance();
                 final int transfer_amount = 10;
                 final int num_iterations = 200;
                 final Random rng = new Random();
@@ -38,17 +52,25 @@ public class Client {
                     int source_uuid = rng.nextInt(20);
                     int target_uuid = rng.nextInt(20);
 
-                    log.log(String.format("%d %d Request transfer(%d, %d, %d)", _client_id, server_id, source_uuid, target_uuid, transfer_amount));
+                    _logger.log(String.format("%s %s(%d, %d, %d)",
+                            generateLogSuffix(server_id, "REQ"),
+                            "transfer", source_uuid, target_uuid, transfer_amount));
+
                     long t0 = System.nanoTime();
                     Status status = bank_service.transfer(source_uuid, target_uuid, transfer_amount);
                     long t1 = System.nanoTime();
                     long span = t1 - t0;
-                    log.log(String.format("%d Response %s", _client_id, status));
+
+                    _logger.log(String.format("%s %s", generateLogSuffix(server_id, "RSP"), status));
+
                     sum += span;
                 }
 
                 sum = sum / num_iterations;
-                System.out.println(String.format("average transfer latency: %.2f ns", sum));
+
+                String transfer_latency_msg = String.format("average transfer latency: %.2f ns", sum);
+                _logger.log(transfer_latency_msg);
+                System.out.println(transfer_latency_msg);
             }
             catch (Exception ex) {
                 ex.printStackTrace();
@@ -79,7 +101,6 @@ public class Client {
             try { threads[i].join(); }
             catch (InterruptedException ex) { ex.printStackTrace(); }
         }
-
         lowest.halt(client_id);
     }
 }
