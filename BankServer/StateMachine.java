@@ -3,7 +3,7 @@ package BankServer;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class StateMachine {
     private static final LogFile.Server _logger = LogFile.Server.getInstance();
@@ -247,7 +247,7 @@ public class StateMachine {
 
     // endregion
 
-    private final PriorityQueue<Request> _queue = new PriorityQueue<Request>();
+    private final PriorityBlockingQueue<Request> _queue = new PriorityBlockingQueue<Request>();
 
     private static StateMachine _instance;
     public synchronized static StateMachine getInstance() {
@@ -262,19 +262,17 @@ public class StateMachine {
     }
 
     public Response execute(Request request) throws InterruptedException {
-        synchronized (request) {
-            Request front = _queue.peek();
-            if (front != null) {
-                if (request.compareTo(front) != 0)
-                    request.wait();
+        Request front = _queue.peek();
+        if (front != null) {
+            if (request.compareTo(front) != 0)
+                synchronized (request) { request.wait(); }
 
-                front = _queue.poll();
-                return front.execute();
-            } else throw new NullPointerException("Response lost and thus cannot be returned");
-        }
+            front = _queue.poll();
+            return front.execute();
+        } else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
-    public synchronized Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException {
+    public Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException {
         Request matching_request = null;
         for (Request request : _queue) {
             if (request.getTimestamp() == timestamp && request.getServerId() == server_id) {
