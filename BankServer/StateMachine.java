@@ -1,9 +1,13 @@
 package BankServer;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.PriorityQueue;
 
 public class StateMachine {
+    private static final LogFile.Server _logger = LogFile.Server.getInstance();
+
     // region Server-to-Client Response
     static class Response { }
 
@@ -72,6 +76,33 @@ public class StateMachine {
             _server_id = server_id;
         }
 
+        //region Log Message formation
+        private String getPhysicalTimestamp() {
+            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+            Date now = new Date();
+            return sdfDate.format(now);
+        }
+
+        protected String getRequestName() { return String.format("%s", getClass().getName()); }
+
+        private String generateLogPrefix(String log_event) {
+            // Target Log Message:
+            // Server-ID [ CLIENT-REQ ~OR~ SRV-REQ ] Physical-clock-time Request-Timestamp Operation-name Parameters
+            //----------
+            // `Operation-name` & `Parameters` handled in subclasses
+            return String.format("%d %s %s [%d,%d]",
+                    getServerId(), log_event, getPhysicalTimestamp(),
+                    getTimestamp(), getServerId());
+        }
+
+        abstract String generateLogSuffix();
+
+        public String getExecuteLogMessage() { return String.format("%s %s", generateLogPrefix("REQ_PROCESSING")); }
+
+
+        public String getEnqueueLogMessage() { return String.format("%s %s", generateLogPrefix(String.format("%s", getRequestSource())), generateLogSuffix()); }
+        //endregion
+
         public Source getRequestSource() { return _request_source;}
 
         public int getTimestamp() { return _timestamp; }
@@ -89,10 +120,6 @@ public class StateMachine {
 
         public abstract int sendToPeer(IBankServicePeer peer) throws IOException, InterruptedException;
 
-        protected void log(String msg) {
-            LogFile.Server log = LogFile.Server.getInstance();
-            log.log(String.format("%d %s [%d,%d] %s", getServerId(), getRequestSource(), getTimestamp(), getServerId(), msg));
-        }
     }
 
     static class CreateAccountRequest extends Request {
@@ -100,10 +127,14 @@ public class StateMachine {
             super(request_source, timestamp, server_id);
         }
 
+        public String generateLogSuffix() {
+            return getRequestName();
+        }
+
         public CreateAccountResponse execute() {
             Bank bank = Bank.getInstance();
             int uuid = bank.createAccount();
-            log(String.format("createAccount() %d", uuid));
+            _logger.log(getExecuteLogMessage());
             return new CreateAccountResponse(uuid);
         }
 
@@ -122,6 +153,10 @@ public class StateMachine {
             _amount = amount;
         }
 
+        public String generateLogSuffix() {
+            return String.format("%s %d %d", getRequestName(), _uuid, _amount);
+        }
+
         public int getUuid() {
             return _uuid;
         }
@@ -133,7 +168,7 @@ public class StateMachine {
         public DepositResponse execute() {
             Bank bank = Bank.getInstance();
             Status status = bank.deposit(getUuid(), getAmount());
-            log(String.format("deposit(%d, %d) %s", getUuid(), getAmount(), status));
+            _logger.log(getExecuteLogMessage());
             return new DepositResponse(status);
         }
 
@@ -150,6 +185,10 @@ public class StateMachine {
             _uuid = uuid;
         }
 
+        public String generateLogSuffix() {
+            return String.format("%s %d", getRequestName(), _uuid);
+        }
+
         public int getUuid() {
             return _uuid;
         }
@@ -157,7 +196,7 @@ public class StateMachine {
         public GetBalanceResponse execute() {
             Bank bank = Bank.getInstance();
             int balance = bank.getBalance(getUuid());
-            log(String.format("getBalance(%d) %d", getUuid(), balance));
+            _logger.log(getExecuteLogMessage());
             return new GetBalanceResponse(balance);
         }
 
@@ -178,6 +217,10 @@ public class StateMachine {
             _amount = amount;
         }
 
+        public String generateLogSuffix() {
+            return String.format("%s %d %d %d", getRequestName(), _source_uuid, _target_uuid, _amount);
+        }
+
         public int getSourceUuid() {
             return _source_uuid;
         }
@@ -193,7 +236,7 @@ public class StateMachine {
         public TransferResponse execute() {
             Bank bank = Bank.getInstance();
             Status status = bank.transfer(getSourceUuid(), getTargetUuid(), getAmount());
-            log(String.format("transfer(%d, %d, %d) %s", getSourceUuid(), getTargetUuid(), getAmount(), status));
+            _logger.log(getExecuteLogMessage());
             return new TransferResponse(status);
         }
 
@@ -214,6 +257,7 @@ public class StateMachine {
     }
 
     public synchronized void enqueue(Request request) {
+        _logger.log(request.getEnqueueLogMessage());
         _queue.add(request);
     }
 

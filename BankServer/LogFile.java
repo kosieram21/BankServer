@@ -1,11 +1,18 @@
 package BankServer;
 
 import java.io.IOException;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.*;
 
 public class LogFile {
+
+    public static class VerySimpleFormatter extends Formatter {
+        @Override
+        public String format(final LogRecord record) {
+            return String.format("%1$-7s %2$s\n",
+                    record.getLevel().getName(), formatMessage(record));
+        }
+    }
+
     static abstract class Base {
         private final Logger _logger;
 
@@ -16,7 +23,7 @@ public class LogFile {
             if(!_initialized) {
                 FileHandler handler = new FileHandler(String.format("%s-%d.txt", _logger.getName(), id));
                 _logger.addHandler(handler);
-                handler.setFormatter(new SimpleFormatter());
+                handler.setFormatter(new VerySimpleFormatter());
                 _initialized = true;
             }
         }
