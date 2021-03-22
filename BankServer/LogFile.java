@@ -8,8 +8,7 @@ public class LogFile {
     public static class VerySimpleFormatter extends Formatter {
         @Override
         public String format(final LogRecord record) {
-            return String.format("%1$-7s %2$s\n",
-                    record.getLevel().getName(), formatMessage(record));
+            return String.format("%s\n", record.getMessage());
         }
     }
 
@@ -21,10 +20,10 @@ public class LogFile {
         private boolean _initialized = false;
         public void initialize(int id) throws IOException {
             if(!_initialized) {
-                FileHandler handler = new FileHandler(String.format("%s-%d.txt", _logger.getName(), id));
-                _logger.addHandler(handler);
-                _logger.setUseParentHandlers(false);
-                handler.setFormatter(new VerySimpleFormatter());
+                FileHandler fileHandler = new FileHandler(String.format("%s-%d.txt", _logger.getName(), id));
+                fileHandler.setFormatter(new VerySimpleFormatter());
+                _logger.addHandler(fileHandler);
+
                 _initialized = true;
             }
         }
