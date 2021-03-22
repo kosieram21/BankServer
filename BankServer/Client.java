@@ -28,16 +28,27 @@ public class Client {
             try {
                 LogFile.Client log = LogFile.Client.getInstance();
                 final int transfer_amount = 10;
+                final int num_iterations = 200;
                 final Random rng = new Random();
-                for(int i = 0; i < 200; i++) {
+
+                double sum = 0;
+                for(int i = 0; i < num_iterations; i++) {
                     int server_id = getServerId(rng.nextInt(_bank_services.size()));
                     IBankService bank_service = _bank_services.get(server_id);
                     int source_uuid = rng.nextInt(20);
                     int target_uuid = rng.nextInt(20);
+
                     log.log(String.format("%d %d Request transfer(%d, %d, %d)", _client_id, server_id, source_uuid, target_uuid, transfer_amount));
+                    long t0 = System.nanoTime();
                     Status status = bank_service.transfer(source_uuid, target_uuid, transfer_amount);
+                    long t1 = System.nanoTime();
+                    long span = t1 - t0;
                     log.log(String.format("%d Response %s", _client_id, status));
+                    sum += span;
                 }
+
+                sum = sum / num_iterations;
+                System.out.println(String.format("average transfer latency: %.2f ns", sum));
             }
             catch (Exception ex) {
                 ex.printStackTrace();
