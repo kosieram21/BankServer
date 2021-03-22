@@ -262,7 +262,6 @@ public class StateMachine {
     }
 
     public Response execute(Request request, int local_server_id) throws InterruptedException {
-        _logger.log("enter execute");
         Request front = _queue.peek();
         if (front != null) {
             if (request.compareTo(front) != 0) {
@@ -270,13 +269,11 @@ public class StateMachine {
             }
 
             Response response = executeRequest(request, local_server_id);
-            _logger.log("exit execute");
             return response;
         } else throw new NullPointerException("Response lost and thus cannot be returned");
     }
 
     public Response executeImmediately(int timestamp, int server_id, int local_server_id) throws NullPointerException {
-        _logger.log("enter executeImmediately");
         Request matching_request = null;
         for (Request request : _queue) {
             if (request.getTimestamp() == timestamp && request.getServerId() == server_id) {
@@ -287,7 +284,6 @@ public class StateMachine {
 
         if (matching_request == null) throw new NullPointerException("No matching request to remove");
         Response matching_response = executeRequest(matching_request, local_server_id);
-        _logger.log("exit executeImmediately");
         return matching_response;
     }
 
@@ -295,7 +291,6 @@ public class StateMachine {
         _queue.remove(request);
         Response response = request.execute();
         Request next_request = _queue.peek();
-        if(next_request != null )_logger.log(String.format("next_request [%d, %d]",  next_request.getTimestamp(), next_request.getServerId()));
         if (next_request != null && next_request.getServerId() == local_server_id)
             synchronized (next_request) { next_request.notify(); }
         return response;
