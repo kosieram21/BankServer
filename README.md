@@ -6,6 +6,8 @@
 # Compilation
 You can clone and build this project using the following commands:
 
+    git clone https://github.com/kosieram21/BankServer.git
+    cd BankServer
     javac -d bin BankServer/*.java
 
 The remaining sections assume that you are making calls from within the `bin` directory created during compilation
