@@ -1,5 +1,7 @@
 package BankServer;
 
+import java.net.InetAddress;
+
 public class Server {
     private static void initializeDataState() {
         Bank bank = Bank.getInstance();
@@ -17,6 +19,7 @@ public class Server {
         final ConfigFile config_file = ConfigFile.parse(args[2]);
         final ConfigFile.Entry local_server = config_file.removeEntry(server_id);
 
+        System.setProperty("java.rmi.server.hostname", InetAddress.getLocalHost().getHostAddress());
         LogFile.Server.getInstance().initialize(server_id);
         initializeDataState();
 

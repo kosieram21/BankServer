@@ -1,8 +1,6 @@
 package BankServer;
 
-import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.UnknownHostException;
 import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -18,11 +16,9 @@ public class ServiceManager {
     private int _id;
 
     private static ServiceManager _instance;
-    public static ServiceManager getInstance() throws UnknownHostException {
-        if (_instance == null) {
-            System.setProperty("java.rmi.server.hostname", InetAddress.getLocalHost().getHostAddress());
+    public static ServiceManager getInstance() {
+        if (_instance == null)
             _instance = new ServiceManager();
-        }
         return _instance;
     }
 
