@@ -1,14 +1,10 @@
 package BankServer;
 
-import java.io.IOException;
 import java.util.Hashtable;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.FileHandler;
+import java.util.Set;
 
 public class Bank {
     private final Hashtable<Integer, Account> _accounts = new Hashtable<Integer, Account>();
-    private final Logger _logger;
 
     static class Account {
         private int _uuid;
@@ -29,15 +25,8 @@ public class Bank {
         }
     }
 
-    private Bank() throws IOException {
-        _logger = Logger.getLogger(Bank.class.getName());
-        FileHandler handler = new FileHandler("serverLogfile%u.txt");
-        _logger.addHandler(handler);
-        handler.setFormatter(new SimpleFormatter());
-    }
-
     private static Bank _instance;
-    public synchronized static Bank getInstance() throws IOException {
+    public synchronized static Bank getInstance() {
         if (_instance == null)
             _instance = new Bank();
         return _instance;
@@ -48,7 +37,6 @@ public class Bank {
         account.setUuid(getNextUuid());
         account.setBalance(0);
         _accounts.put(account.getUuid(), account);
-        _logger.info("createAccount() -> " + account.getUuid());
         return account.getUuid();
     }
 
@@ -66,14 +54,11 @@ public class Bank {
             }
         }
 
-        _logger.info("deposit(" + uuid + ", " + amount + ") -> " + status);
-
         return status;
     }
 
     public int getBalance(int uuid) {
         Account account = _accounts.get(uuid);
-        _logger.info("getBalance(" + uuid + ") -> " + account.getBalance());
         return account.getBalance();
     }
 
@@ -109,9 +94,19 @@ public class Bank {
             }
         }
 
-        _logger.info("transfer(" + source_uuid + ", " + target_uuid + ", " + amount + ") ->" + status);
-
         return status;
+    }
+
+    public void printState() {
+        LogFile.Server log = LogFile.Server.getInstance();
+        int sum = 0;
+        Set<Integer> keys = _accounts.keySet();
+        for(Integer key : keys) {
+            int balance = getBalance(key);
+            sum += balance;
+            log.log(String.format("account %d's balance is currently %d", key, balance));
+        }
+        log.log(String.format("total balance across all accounts is %d", sum));
     }
 
     private int _nextUuid = 0;
