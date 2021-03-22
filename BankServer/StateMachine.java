@@ -97,7 +97,7 @@ public class StateMachine {
 
         abstract String generateLogSuffix();
 
-        public String getExecuteLogMessage() { return String.format("%s %s", generateLogPrefix("REQ_PROCESSING")); }
+        public String getExecuteLogMessage() { return String.format("%s", generateLogPrefix("REQ_PROCESSING")); }
 
 
         public String getEnqueueLogMessage() { return String.format("%s %s", generateLogPrefix(String.format("%s", getRequestSource())), generateLogSuffix()); }
