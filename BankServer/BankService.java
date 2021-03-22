@@ -76,7 +76,7 @@ public class BankService implements IBankService {
     {
         _state_machine.enqueue(request);
         multicast(request);
-        StateMachine.Response response = _state_machine.execute(request);
+        StateMachine.Response response = _state_machine.execute(request, _local_server_id);
         multicast(peer -> peer.execute(request.getTimestamp(), request.getServerId()));
         return response;
     }

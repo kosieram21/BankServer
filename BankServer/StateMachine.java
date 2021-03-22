@@ -261,7 +261,7 @@ public class StateMachine {
         _queue.add(request);
     }
 
-    public Response execute(Request request) throws InterruptedException {
+    public Response execute(Request request, int local_server_id) throws InterruptedException {
         _logger.log("enter execute");
         Request front = _queue.peek();
         if (front != null) {
@@ -269,8 +269,7 @@ public class StateMachine {
                 synchronized (request) { request.wait(); }
             }
 
-            _queue.remove(request);
-            Response response = request.execute();
+            Response response = executeRequest(request, local_server_id);
             _logger.log("exit execute");
             return response;
         } else throw new NullPointerException("Response lost and thus cannot be returned");
@@ -287,14 +286,18 @@ public class StateMachine {
         }
 
         if (matching_request == null) throw new NullPointerException("No matching request to remove");
-        _queue.remove(matching_request);
-        Response matching_response = matching_request.execute();
+        Response matching_response = executeRequest(matching_request, local_server_id);
+        _logger.log("exit executeImmediately");
+        return matching_response;
+    }
 
+    private Response executeRequest(Request request, int local_server_id) {
+        _queue.remove(request);
+        Response response = request.execute();
         Request next_request = _queue.peek();
         if(next_request != null )_logger.log(String.format("next_request [%d, %d]",  next_request.getTimestamp(), next_request.getServerId()));
         if (next_request != null && next_request.getServerId() == local_server_id)
             synchronized (next_request) { next_request.notify(); }
-        _logger.log("exit executeImmediately");
-        return matching_response;
+        return response;
     }
 }
