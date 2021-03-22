@@ -291,6 +291,7 @@ public class StateMachine {
         Response matching_response = matching_request.execute();
 
         Request next_request = _queue.peek();
+        if(next_request != null )_logger.log(String.format("next_request [%d, %d]",  next_request.getTimestamp(), next_request.getServerId()));
         if (next_request != null && next_request.getServerId() == local_server_id)
             synchronized (next_request) { next_request.notify(); }
         _logger.log("exit executeImmediately");
