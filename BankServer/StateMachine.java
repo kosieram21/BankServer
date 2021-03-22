@@ -288,10 +288,8 @@ public class StateMachine {
         Response matching_response = matching_request.execute();
 
         Request next_request = _queue.peek();
-        synchronized (next_request) {
-            if (next_request != null && next_request.getServerId() == local_server_id)
-                next_request.notify();
-        }
+        if (next_request != null && next_request.getServerId() == local_server_id)
+            synchronized (next_request) { next_request.notify(); }
 
         return matching_response;
     }
